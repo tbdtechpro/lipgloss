@@ -456,43 +456,48 @@ ANSI-escaped strings that the Bubble Tea renderer prints as-is.
 
 ## 12. CI / GitHub Actions
 
-- [ ] **Add Python lint + test workflow**
+- [x] **Add Python lint + test workflow**
   - `.github/workflows/python.yml`: runs on push/PR against Python 3.10, 3.11, 3.12.
   - Steps: `pip install -e ".[dev]"`, `black --check`, `isort --check`, `flake8`,
     `mypy`, `pytest --cov`.
-  - File: `.github/workflows/python.yml` (new)
+  - File: `.github/workflows/python.yml`
 
-- [ ] **Add Python coverage reporting**
-  - `pytest --cov=lipgloss --cov-fail-under=60`.
+- [x] **Add Python coverage reporting**
+  - `pytest --cov=lipgloss --cov-fail-under=60` included in the workflow.
   - File: `.github/workflows/python.yml`
 
 ---
 
 ## 13. Examples
 
-- [ ] **Port the basic styling example**
-  - Shows `Style` with colors, bold, padding, borders, and `render()`.
-  - File: `examples/basic_style.py` (new)
+- [x] **Port the basic styling example**
+  - Shows `Style` with bold, italic, underline, borders, padding, color swatches,
+    adaptive colors, and a styled status bar nugget.
+  - File: `examples/basic_style.py`
 
-- [ ] **Port the table example**
-  - Reproduces the Go `examples/table` output: language greeting table with
-    header styling, alternating row colors, and a normal border.
-  - File: `examples/table.py` (new)
+- [x] **Port the table example**
+  - Language greeting table with thick border, header styling (purple bold),
+    alternating row colors (gray/light-gray), wider formal column, RTL alignment
+    for Arabic. Ports `examples/table/languages/main.go`.
+  - File: `examples/table.py`
 
-- [ ] **Port the list example**
-  - Reproduces the Go `examples/list` output: nested grocery list with
-    Roman enumerator and custom styles.
-  - File: `examples/list.py` (new)
+- [x] **Port the list example**
+  - Grocery list with custom enumerator (✓ for purchased, • otherwise),
+    strikethrough on purchased items via pre-styled text. Ports
+    `examples/list/grocery/main.go`.
+  - File: `examples/list.py`
 
-- [ ] **Port the tree example**
-  - Reproduces the Go `examples/tree` output: OS family tree with
-    `rounded_enumerator` and custom styles.
-  - File: `examples/tree.py` (new)
+- [x] **Port the tree example**
+  - Recursively renders the current directory as a styled tree (skips hidden
+    entries), with purple bold item style and gray enumerator. Ports
+    `examples/tree/files/main.go`.
+  - File: `examples/tree.py`
 
-- [ ] **Port the layout example**
-  - Reproduces the Go `examples/layout` output: multiple styled columns joined
-    horizontally with `join_horizontal` and `place`.
-  - File: `examples/layout.py` (new)
+- [x] **Port the layout example**
+  - Full multi-section layout: tabs row, title + description, dialog box with
+    whitespace fill, two-column list panel, three-column history blocks, and a
+    status bar. Ports `examples/layout/main.go`.
+  - File: `examples/layout.py`
 
 ---
 
