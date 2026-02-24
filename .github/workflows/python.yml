@@ -28,13 +28,13 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: black
-        run: black --check --line-length 100 lipgloss/ tests/
+        run: black --check --line-length 100 lipgloss/ tests/ examples/
 
       - name: isort
-        run: isort --profile black --check lipgloss/ tests/
+        run: isort --profile black --check lipgloss/ tests/ examples/
 
       - name: flake8
-        run: flake8 lipgloss/ tests/ --max-line-length 100 --extend-ignore E203,W503
+        run: flake8 lipgloss/ tests/ examples/
 
       - name: mypy
         run: mypy lipgloss/ --ignore-missing-imports
