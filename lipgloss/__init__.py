@@ -76,6 +76,9 @@ from .size import height, size, width
 # Style
 from .style import Style, new_style
 
+# Themes
+from . import themes
+
 # Whitespace options
 from .whitespace import (
     WhitespaceOption,
@@ -87,6 +90,8 @@ from .whitespace import (
 __all__ = [
     # Version
     "__version__",
+    # Themes
+    "themes",
     # Style
     "Style",
     "new_style",
