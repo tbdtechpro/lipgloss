@@ -11,7 +11,7 @@ from lipgloss.color import (
     NoColor,
     TerminalColor,
 )
-from lipgloss.renderer import ColorProfile, Renderer
+from lipgloss.renderer import Renderer
 
 # ---------------------------------------------------------------------------
 # Protocol conformance

@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import re
 
-import pytest
-
 from lipgloss.tree import (
     DefaultEnumerator,
     DefaultIndenter,
@@ -65,34 +63,34 @@ def test_node_children_remove_out_of_bounds() -> None:
 
 
 def test_leaf_value() -> None:
-    l = Leaf("hello")
-    assert l.value() == "hello"
+    lf = Leaf("hello")
+    assert lf.value() == "hello"
 
 
 def test_leaf_hidden_default_false() -> None:
-    l = Leaf("x")
-    assert l.hidden() is False
+    lf = Leaf("x")
+    assert lf.hidden() is False
 
 
 def test_leaf_hidden_true() -> None:
-    l = Leaf("x", hidden=True)
-    assert l.hidden() is True
+    lf = Leaf("x", hidden=True)
+    assert lf.hidden() is True
 
 
 def test_leaf_set_hidden() -> None:
-    l = Leaf("x")
-    l.set_hidden(True)
-    assert l.hidden() is True
+    lf = Leaf("x")
+    lf.set_hidden(True)
+    assert lf.hidden() is True
 
 
 def test_leaf_children_empty() -> None:
-    l = Leaf("x")
-    assert l.children().length() == 0
+    lf = Leaf("x")
+    assert lf.children().length() == 0
 
 
 def test_leaf_str() -> None:
-    l = Leaf("hello")
-    assert str(l) == "hello"
+    lf = Leaf("hello")
+    assert str(lf) == "hello"
 
 
 # ---------------------------------------------------------------------------
@@ -301,7 +299,7 @@ def test_tree_hidden_child_last_gets_corner() -> None:
     )
     out = _strip_ansi(t.render())
     lines = out.splitlines()
-    bar_line = next(l for l in lines if "Bar" in l)
+    bar_line = next(ln for ln in lines if "Bar" in ln)
     assert bar_line.startswith("└──")
 
 

@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import re
 
-import pytest
-
 from lipgloss.list import (
     Alphabet,
     Arabic,
@@ -154,30 +152,30 @@ def test_list_default_bullet() -> None:
 
 
 def test_list_item_method() -> None:
-    l = List().item("A").item("B")
-    out = _strip_ansi(l.render())
+    li = List().item("A").item("B")
+    out = _strip_ansi(li.render())
     assert "A" in out
     assert "B" in out
 
 
 def test_list_items_method() -> None:
-    l = List().items("P", "Q", "R")
-    out = _strip_ansi(l.render())
+    li = List().items("P", "Q", "R")
+    out = _strip_ansi(li.render())
     lines = out.splitlines()
     assert len(lines) == 3
 
 
 def test_list_arabic_enumerator() -> None:
-    l = List("Foo", "Bar", "Baz").enumerator(Arabic)
-    out = _strip_ansi(l.render())
+    li = List("Foo", "Bar", "Baz").enumerator(Arabic)
+    out = _strip_ansi(li.render())
     assert "1." in out
     assert "2." in out
     assert "3." in out
 
 
 def test_list_roman_alignment() -> None:
-    l = List("A", "B", "C", "D", "E").enumerator(Roman)
-    out = _strip_ansi(l.render())
+    li = List("A", "B", "C", "D", "E").enumerator(Roman)
+    out = _strip_ansi(li.render())
     lines = out.splitlines()
     # "III." is the widest prefix; all lines should be the same width up to content.
     # The "I." line should be right-padded/aligned.
@@ -187,22 +185,22 @@ def test_list_roman_alignment() -> None:
 
 
 def test_list_alphabet_enumerator() -> None:
-    l = List("X", "Y", "Z").enumerator(Alphabet)
-    out = _strip_ansi(l.render())
+    li = List("X", "Y", "Z").enumerator(Alphabet)
+    out = _strip_ansi(li.render())
     assert "A." in out
     assert "B." in out
     assert "C." in out
 
 
 def test_list_dash_enumerator() -> None:
-    l = List("X", "Y").enumerator(Dash)
-    out = _strip_ansi(l.render())
+    li = List("X", "Y").enumerator(Dash)
+    out = _strip_ansi(li.render())
     assert "-" in out
 
 
 def test_list_asterisk_enumerator() -> None:
-    l = List("X", "Y").enumerator(Asterisk)
-    out = _strip_ansi(l.render())
+    li = List("X", "Y").enumerator(Asterisk)
+    out = _strip_ansi(li.render())
     assert "*" in out
 
 
@@ -212,13 +210,13 @@ def test_list_asterisk_enumerator() -> None:
 
 
 def test_list_hidden_returns_empty() -> None:
-    l = List("A", "B").hide(True)
-    assert l.render() == ""
+    li = List("A", "B").hide(True)
+    assert li.render() == ""
 
 
 def test_list_hidden_false_renders() -> None:
-    l = List("A", "B").hide(False)
-    assert l.render() != ""
+    li = List("A", "B").hide(False)
+    assert li.render() != ""
 
 
 def test_nested_list_hidden() -> None:
@@ -245,7 +243,7 @@ def test_nested_list_indented() -> None:
     # Outer item first, then indented inner items.
     assert "Outer" in lines[0]
     # Inner items should be indented (start with spaces).
-    inner_lines = [l for l in lines[1:] if l.strip()]
+    inner_lines = [ln for ln in lines[1:] if ln.strip()]
     for line in inner_lines:
         assert line.startswith(" ")
 
@@ -261,16 +259,16 @@ def test_nested_list_content() -> None:
 
 
 def test_list_str_equals_render() -> None:
-    l = List("A", "B")
-    assert str(l) == l.render()
+    li = List("A", "B")
+    assert str(li) == li.render()
 
 
 def test_list_custom_enumerator() -> None:
     def star_enum(items: Items, i: int) -> str:
         return f"[{i + 1}]"
 
-    l = List("X", "Y", "Z").enumerator(star_enum)
-    out = _strip_ansi(l.render())
+    li = List("X", "Y", "Z").enumerator(star_enum)
+    out = _strip_ansi(li.render())
     assert "[1]" in out
     assert "[2]" in out
     assert "[3]" in out

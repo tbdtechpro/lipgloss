@@ -6,7 +6,6 @@ Port of: position.go
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
 from .style import _visible_width
@@ -93,7 +92,7 @@ def place_horizontal(
     from .renderer import default_renderer
 
     lines = s.split("\n")
-    content_width = max((_visible_width(l) for l in lines), default=0)
+    content_width = max((_visible_width(ln) for ln in lines), default=0)
     gap = width - content_width
     if gap <= 0:
         return s
@@ -144,7 +143,7 @@ def place_vertical(
     renderer = default_renderer()
 
     lines = s.split("\n")
-    w = max((_visible_width(l) for l in lines), default=0)
+    w = max((_visible_width(ln) for ln in lines), default=0)
     empty_line = _render_whitespace(ws, w, renderer)
 
     pos_clamped = max(0.0, min(1.0, float(pos)))

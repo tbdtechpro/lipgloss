@@ -7,7 +7,6 @@ Port of: style.go, set.go, get.go, unset.go
 from __future__ import annotations
 
 import re
-import unicodedata
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Callable, cast
 
@@ -264,8 +263,6 @@ class Style:
     # ------------------------------------------------------------------
 
     def _apply_border(self, str_: str) -> str:
-        from .borders import Border
-
         border = self._get("border_style")
         has_top = self._get("border_top", False)
         has_right = self._get("border_right", False)
@@ -296,7 +293,7 @@ class Style:
         left_bg = self._get("border_left_background")
 
         lines = str_.split("\n")
-        content_width = max((_visible_width(l) for l in lines), default=0)
+        content_width = max((_visible_width(ln) for ln in lines), default=0)
 
         if has_left:
             left_char = border.left or " "
@@ -393,7 +390,7 @@ class Style:
 
         if top_margin > 0 or bottom_margin > 0:
             lines = str_.split("\n")
-            w = max((_visible_width(l) for l in lines), default=0)
+            w = max((_visible_width(ln) for ln in lines), default=0)
             empty_line = style_margin(" " * w)
             if top_margin > 0:
                 str_ = (empty_line + "\n") * top_margin + str_
@@ -1174,7 +1171,7 @@ def _align_text_horizontal(
     style_ws: "Callable[[str], str] | None",
 ) -> str:
     lines = str_.split("\n")
-    widest = max((_visible_width(l) for l in lines), default=0)
+    widest = max((_visible_width(ln) for ln in lines), default=0)
     result: list[str] = []
     for line in lines:
         line_w = _visible_width(line)

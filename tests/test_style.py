@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import lipgloss
 from lipgloss.color import Color, NoColor
-from lipgloss.renderer import Renderer
 
 # ---------------------------------------------------------------------------
 # Immutability / copy
