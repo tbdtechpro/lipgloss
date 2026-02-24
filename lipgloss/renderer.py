@@ -101,10 +101,117 @@ class Renderer:
         Returns an empty string for the ASCII profile (no color output).
         Implementation detail used by Color.resolve().
         """
-        # Full implementation deferred to MVP task 2.2.
-        raise NotImplementedError(
-            "_resolve_color_string is not yet implemented (MVP task 2.2)"
-        )
+        profile = self.color_profile()
+        if profile == ColorProfile.ASCII:
+            return ""
+
+        color_str = color_str.strip()
+
+        if color_str.startswith("#"):
+            # True-color hex: #RRGGBB
+            hex_val = color_str.lstrip("#")
+            if len(hex_val) == 6:
+                r = int(hex_val[0:2], 16)
+                g = int(hex_val[2:4], 16)
+                b = int(hex_val[4:6], 16)
+                if profile == ColorProfile.TRUE_COLOR:
+                    return f"\x1b[38;2;{r};{g};{b}m"
+                # Degrade to ANSI256
+                idx = _rgb_to_ansi256(r, g, b)
+                if profile == ColorProfile.ANSI256:
+                    return f"\x1b[38;5;{idx}m"
+                # Degrade to ANSI16
+                ansi16 = _ansi256_to_ansi16(idx)
+                return _ansi16_fg_escape(ansi16)
+            return ""
+
+        # Numeric ANSI index string
+        try:
+            idx = int(color_str)
+        except ValueError:
+            return ""
+
+        if idx < 0:
+            return ""
+
+        if idx < 16:
+            # Basic ANSI color (0–15)
+            return _ansi16_fg_escape(idx)
+
+        if profile == ColorProfile.ANSI:
+            # Degrade 256-color index to nearest ANSI16
+            return _ansi16_fg_escape(_ansi256_to_ansi16(idx))
+
+        # ANSI256 or TRUE_COLOR: emit 256-color escape
+        return f"\x1b[38;5;{idx}m"
+
+
+# ---------------------------------------------------------------------------
+# Color-conversion helpers
+# ---------------------------------------------------------------------------
+
+
+def _ansi16_fg_escape(idx: int) -> str:
+    """Return the ANSI escape for a basic 0–15 foreground color."""
+    if idx < 8:
+        return f"\x1b[{30 + idx}m"
+    return f"\x1b[{90 + idx - 8}m"
+
+
+def _rgb_to_ansi256(r: int, g: int, b: int) -> int:
+    """Convert an RGB triplet to the nearest xterm-256 palette index."""
+    # Grayscale ramp (232–255)
+    if r == g == b:
+        if r < 8:
+            return 16
+        if r > 248:
+            return 231
+        return round((r - 8) / 247 * 24) + 232
+    # 6x6x6 colour cube (16–231)
+    return 16 + 36 * round(r / 255 * 5) + 6 * round(g / 255 * 5) + round(b / 255 * 5)
+
+
+# Approximate mapping from xterm-256 index to ANSI-16 index used when
+# degrading to a 4-bit terminal.  The 16 basic colours map to themselves;
+# the colour-cube and grayscale entries are mapped to the nearest of the
+# 8 standard colours (0–7) by comparing perceived brightness.
+def _ansi256_to_ansi16(idx: int) -> int:
+    """Map an xterm-256 colour index to the nearest ANSI-16 index (0–15)."""
+    if idx < 16:
+        return idx
+    if idx >= 232:
+        # Grayscale ramp — map to black, dark-gray, light-gray or white
+        level = idx - 232  # 0–23
+        if level < 6:
+            return 0   # black
+        if level < 12:
+            return 8   # dark gray (bright black)
+        if level < 18:
+            return 7   # light gray
+        return 15      # white
+    # Colour cube: convert cube indices back to approximate RGB
+    idx -= 16
+    b_i = idx % 6
+    g_i = (idx // 6) % 6
+    r_i = idx // 36
+    r = r_i * 51
+    g = g_i * 51
+    b = b_i * 51
+    # Pick nearest of 8 basic colours by hue/brightness heuristic
+    bright = (r + g + b) > 382  # roughly above mid-point → use bright variant
+    if r > g and r > b:
+        return 9 if bright else 1   # red
+    if g > r and g > b:
+        return 10 if bright else 2  # green
+    if b > r and b > g:
+        return 12 if bright else 4  # blue
+    if r > b and g > b:
+        return 11 if bright else 3  # yellow
+    if r > g and b > g:
+        return 13 if bright else 5  # magenta
+    if g > r and b > r:
+        return 14 if bright else 6  # cyan
+    return 15 if bright else 0      # white / black
 
 
 # ---------------------------------------------------------------------------
