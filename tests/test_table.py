@@ -10,7 +10,6 @@ import lipgloss
 from lipgloss.table import Filter, HeaderRow, StringData, Table
 from lipgloss.table.resizing import Resizer, _median
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -165,13 +164,7 @@ def test_table_no_border() -> None:
 
 
 def test_table_row_separator() -> None:
-    t = (
-        Table()
-        .headers("Name", "Score")
-        .row("Alice", "100")
-        .row("Bob", "80")
-        .border_row(True)
-    )
+    t = Table().headers("Name", "Score").row("Alice", "100").row("Bob", "80").border_row(True)
     out = _strip_ansi(t.render())
     lines = out.splitlines()
     # Should have a separator line between data rows.

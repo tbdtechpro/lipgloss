@@ -18,6 +18,7 @@ The enumerator callable signature is:
   fn(items: Items, index: int) -> str
 where Items provides .at(i) and .__len__().
 """
+
 from __future__ import annotations
 
 from typing import Any, Callable

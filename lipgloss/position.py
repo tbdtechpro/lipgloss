@@ -43,6 +43,7 @@ def _render_whitespace(ws: _Whitespace, width: int, renderer: Any) -> str:
         # advance by visible width of char (usually 1)
         try:
             from wcwidth import wcwidth  # type: ignore[import]
+
             cw = wcwidth(ch)
             i += cw if cw > 0 else 1
         except ImportError:
@@ -77,7 +78,9 @@ def place(
     *whitespace_opts: WhitespaceOption,
 ) -> str:
     """Place a string in a box of the given dimensions."""
-    return place_vertical(height, v_pos, place_horizontal(width, h_pos, s, *whitespace_opts), *whitespace_opts)
+    return place_vertical(
+        height, v_pos, place_horizontal(width, h_pos, s, *whitespace_opts), *whitespace_opts
+    )
 
 
 def place_horizontal(

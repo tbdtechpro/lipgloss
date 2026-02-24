@@ -12,6 +12,7 @@ Both implement the same protocol:
   .rows() -> int
   .columns() -> int
 """
+
 from __future__ import annotations
 
 from typing import Callable, Protocol, runtime_checkable
@@ -80,7 +81,9 @@ class Filter:
         predicate: Callable[[int], bool] | None = None,
     ) -> None:
         self._data = data
-        self._predicate: Callable[[int], bool] = predicate if predicate is not None else (lambda _: True)
+        self._predicate: Callable[[int], bool] = (
+            predicate if predicate is not None else (lambda _: True)
+        )
 
     def filter(self, predicate: Callable[[int], bool]) -> "Filter":
         """Set the filter predicate."""

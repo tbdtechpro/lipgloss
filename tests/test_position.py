@@ -3,9 +3,17 @@
 from __future__ import annotations
 
 import lipgloss
-from lipgloss.position import Center, Left, Right, Top, Bottom, place, place_horizontal, place_vertical
+from lipgloss.position import (
+    Bottom,
+    Center,
+    Left,
+    Right,
+    Top,
+    place,
+    place_horizontal,
+    place_vertical,
+)
 from lipgloss.size import height, width
-
 
 # ---------------------------------------------------------------------------
 # place_horizontal

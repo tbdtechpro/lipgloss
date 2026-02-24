@@ -10,6 +10,7 @@ table-level width constraint when set.
 
 Internal function used by Table.render(); not part of the public API.
 """
+
 from __future__ import annotations
 
 import math
@@ -128,7 +129,11 @@ class Resizer:
 
     def detect_table_width(self) -> int:
         """Detect the natural table width from content."""
-        return self._max_char_count() + self._total_horizontal_padding() + self._total_horizontal_border()
+        return (
+            self._max_char_count()
+            + self._total_horizontal_padding()
+            + self._total_horizontal_border()
+        )
 
     # ------------------------------------------------------------------
     # Expand / shrink algorithms

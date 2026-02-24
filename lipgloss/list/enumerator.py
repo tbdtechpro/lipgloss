@@ -14,6 +14,7 @@ Built-ins:
   Alphabet  — "A.", "B.", "C." … (uppercase, wraps at ZZ. etc.)
   Roman     — "I.", "II.", "III." … (uppercase Roman numerals)
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

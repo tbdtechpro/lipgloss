@@ -17,7 +17,6 @@ from lipgloss.borders import (
     thick_border,
 )
 
-
 # ---------------------------------------------------------------------------
 # Border definitions — spot-check key runes
 # ---------------------------------------------------------------------------
@@ -150,12 +149,7 @@ def test_render_no_border_when_no_style(style: lipgloss.Style) -> None:
 def test_render_border_with_foreground_color(style: lipgloss.Style) -> None:
     from lipgloss.color import Color
 
-    out = (
-        style
-        .border_style(rounded_border())
-        .border_foreground(Color("#FF0000"))
-        .render("hi")
-    )
+    out = style.border_style(rounded_border()).border_foreground(Color("#FF0000")).render("hi")
     # Should contain the red foreground escape somewhere (on border chars)
     assert "\x1b[38;2;255;0;0m" in out
 

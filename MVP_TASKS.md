@@ -43,8 +43,8 @@ Foundation files needed before any implementation work begins.
     `place_horizontal`, `place_vertical`, `width`, `height`, `size`,
     `style_runes`, `ColorProfile`, `Renderer`, `default_renderer`,
     `set_default_renderer`, `new_renderer`, whitespace option helpers.
-  - All core rendering is fully implemented. `style_runes`, `table`, and `list`
-    sub-packages are complete. The `tree` sub-package (task 8) is still a stub.
+  - All core rendering is fully implemented. `style_runes`, `table`, `list`, and
+    `tree` sub-packages are complete.
   - File: `lipgloss/__init__.py`
 
 ---
@@ -298,7 +298,7 @@ The central component of the library. All other rendering features depend on `St
 
 ## 8. Tree Sub-package
 
-- [ ] **Implement `Tree` class**
+- [x] **Implement `Tree` class**
   - `Tree()` constructor; `root(label: str)` sets the root label.
   - `.child(*items)` — append children; items can be `str` (leaf) or `Tree` (branch).
   - `.enumerator(fn: Callable[[Children, int], str])` — custom enumerator.
@@ -307,20 +307,21 @@ The central component of the library. All other rendering features depend on `St
   - `.enumerator_style(s: Style)` — style applied to enumerator prefix.
   - `.__str__() / .render() -> str` — render to ANSI string.
   - Reference: `tree/tree.go`, `tree/renderer.go`.
-  - File: `lipgloss/tree/tree.py` (new)
+  - File: `lipgloss/tree/tree.py`
 
-- [ ] **Implement built-in tree enumerators**
-  - `default_enumerator` — `├── ` / `└── ` style.
-  - `rounded_enumerator` — `├── ` / `╰── ` style.
+- [x] **Implement built-in tree enumerators**
+  - `DefaultEnumerator` — `├──` / `└──` style.
+  - `RoundedEnumerator` — `├──` / `╰──` style.
+  - `DefaultIndenter` — `│  ` / `   ` style.
   - Reference: `tree/enumerator.go`.
-  - File: `lipgloss/tree/enumerator.py` (new)
+  - File: `lipgloss/tree/enumerator.py`
 
-- [ ] **Implement `Children` and `Leaf`/`Node` types**
-  - `Node` protocol: `.value() -> str`, `.hidden() -> bool`, `.children() -> Children`.
+- [x] **Implement `Children` and `Leaf`/`Node` types**
+  - `Node` protocol: `.value() -> str`, `.hidden() -> bool`, `.children() -> NodeChildren`.
   - `Leaf(str)` — terminal node with no children.
-  - `Children` — sequence wrapper with `.at(i)` and `.__len__()`.
+  - `NodeChildren` — immutable sequence wrapper with `.at(i)`, `.length()`, `.append()`, `.remove()`.
   - Reference: `tree/children.go`, `tree/tree.go`.
-  - File: `lipgloss/tree/children.py` (new)
+  - File: `lipgloss/tree/children.py`
 
 ---
 
@@ -391,13 +392,16 @@ The central component of the library. All other rendering features depend on `St
   - `enumerator_style` and `item_style`.
   - File: `tests/test_list.py`
 
-- [ ] **Write unit tests for the tree sub-package**
-  - Single-level tree with `default_enumerator` and `rounded_enumerator`.
-  - Multi-level nested tree.
-  - Custom enumerator.
-  - Hidden nodes are skipped.
-  - Root / item / enumerator styling.
-  - File: `tests/test_tree.py` (new)
+- [x] **Write unit tests for the tree sub-package**
+  - `NodeChildren` (append, remove, out-of-bounds), `Leaf` (value, hidden, children, str).
+  - `DefaultEnumerator`, `RoundedEnumerator`, `DefaultIndenter` for middle/last positions.
+  - Single-level tree with box chars, last-child corner, single child.
+  - Multi-level nested tree with correct indentation; deeply nested (3 levels).
+  - Auto-nesting: rootless Tree after Leaf promotes Leaf as the new root.
+  - Hidden trees return empty; hidden child is skipped; last visible child gets corner.
+  - `RoundedEnumerator` output, `root()` helper, `str() == render()`.
+  - Offset trims last child; `item_style` and `root_style` applied.
+  - File: `tests/test_tree.py`
 
 ---
 
@@ -432,17 +436,20 @@ ANSI-escaped strings that the Bubble Tea renderer prints as-is.
 
 ## 11. Packaging & Type Safety
 
-- [ ] **Run `mypy` over all Python source files and fix all errors**
-  - Strict mode: `disallow_untyped_defs = true`, `check_untyped_defs = true`.
-  - All public functions and methods must have complete type annotations.
+- [x] **Run `mypy` over all Python source files and fix all errors**
+  - All 43 `no-any-return` errors in `style.py` getter methods resolved with
+    `bool()`, `int()`, `float()`, and `cast()` wrappers.
+  - `mypy lipgloss/ --ignore-missing-imports` reports zero errors (21 source files).
   - Files: all `.py` source files
 
-- [ ] **Run `black` and `isort` and resolve all formatting issues**
+- [x] **Run `black` and `isort` and resolve all formatting issues**
   - Line length 100, isort black profile.
+  - All 24 reformatted files now pass `black --check` and `isort --check`.
   - Files: all `.py` source files
 
-- [ ] **Ensure all public symbols are exported from `lipgloss/__init__.py`**
-  - `__all__` must include every symbol intended to be part of the public API.
+- [x] **Ensure all public symbols are exported from `lipgloss/__init__.py`**
+  - `__all__` includes all public symbols; sub-packages (`tree`, `list`, `table`)
+    each have their own `__all__` in their respective `__init__.py`.
   - File: `lipgloss/__init__.py`
 
 ---

@@ -8,7 +8,6 @@ import pytest
 
 from lipgloss.renderer import ColorProfile, Renderer
 
-
 # ---------------------------------------------------------------------------
 # Color profile detection
 # ---------------------------------------------------------------------------
