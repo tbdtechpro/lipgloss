@@ -503,17 +503,21 @@ ANSI-escaped strings that the Bubble Tea renderer prints as-is.
 
 ## 14. Documentation
 
-- [ ] **Create `ATTRIBUTION.md`**
-  - Credit the original Charm team, and the AI tooling used in this experiment.
-  - File: `ATTRIBUTION.md` (new)
+- [x] **Create `ATTRIBUTION.md`**
+  - Credits the Charm team (original Go library), Anthropic Claude (code generation),
+    lists all runtime and dev dependencies with licenses.
+  - File: `ATTRIBUTION.md`
 
-- [ ] **Add `CHANGELOG.md`**
-  - Track version history from `0.1.0` onwards.
-  - Follow [Keep a Changelog](https://keepachangelog.com) format.
-  - File: `CHANGELOG.md` (new)
+- [x] **Add `CHANGELOG.md`**
+  - Full `[0.1.0]` entry covering every implemented feature across all 14 task
+    areas; follows Keep a Changelog format.
+  - File: `CHANGELOG.md`
 
-- [ ] **Write a Python usage guide**
-  - Covers: `Style` basics, color types, borders, padding/margins, join/place
-    layout, table/list/tree sub-packages, custom renderers, and using lipgloss
-    inside a Bubble Tea `view()`.
+- [x] **Write a Python usage guide**
+  - Covers: `Style` basics, all color types, text formatting, padding/margins,
+    width/height, borders (predefined + custom), alignment, inline/truncation,
+    tab width, transform, inherit/copy, getters/unsetters, measurement, join,
+    place, whitespace options, style_runes, table, list, tree sub-packages,
+    custom renderers, and practical patterns.
+  - Also updated `README.md` status table and attribution link.
   - File: `docs/python-guide.md` (new)
