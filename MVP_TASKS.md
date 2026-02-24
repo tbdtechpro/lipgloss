@@ -411,26 +411,24 @@ The integration point is straightforward: a Bubble Tea `Model.view()` returns a 
 Using lipgloss to build that string requires no special wiring — lipgloss just produces
 ANSI-escaped strings that the Bubble Tea renderer prints as-is.
 
-- [ ] **Verify ANSI string compatibility with the Bubble Tea Python renderer**
-  - Confirm that lipgloss-rendered strings (with embedded ANSI escape codes) display
-    correctly when returned from a Bubble Tea `view()` and written by
-    `bubbletea.Renderer`.
-  - Specifically: the Bubble Tea renderer uses line-diff output to avoid full redraws.
-    Verify that lipgloss strings that contain escape codes do not confuse the diff
-    logic (off-by-one visible widths, etc.).
-  - File: `tests/test_bubbletea_integration.py` (new)
+- [x] **Verify ANSI string compatibility with the Bubble Tea Python renderer**
+  - Confirmed: lipgloss ANSI strings work correctly in `view()`. bubbletea's
+    renderer uses `view.count("\n")` for frame erasure — ANSI codes don't affect
+    newline counts. 10 integration tests covering width/height measurement, line
+    counts, headless program runs, multi-line layouts, and message delivery.
+  - File: `tests/test_bubbletea_integration.py`
 
-- [ ] **Write a combined lipgloss + Bubble Tea example program**
-  - Simple counter app where `view()` uses lipgloss styles: a styled header, a
-    centered count, and a footer rendered with `join_vertical`.
-  - Demonstrates that the two Python ports can be used together as a drop-in
-    replacement for Go Bubble Tea + Lip Gloss.
-  - File: `examples/bubbletea_counter.py` (new)
+- [x] **Write a combined lipgloss + Bubble Tea example program**
+  - Counter app with styled header, centered count box (rounded border), and
+    help footer via `join_vertical`. Demonstrates `+/-/r/q` keybindings and
+    direct lipgloss integration as a Python drop-in for Go Lip Gloss + Bubble Tea.
+  - File: `examples/bubbletea_counter.py`
 
-- [ ] **Write a layout showcase example using lipgloss + Bubble Tea**
-  - Demonstrates `join_horizontal`, `join_vertical`, `place`, borders, adaptive
-    colors, and table rendering all in one Bubble Tea view.
-  - File: `examples/bubbletea_layout.py` (new)
+- [x] **Write a layout showcase example using lipgloss + Bubble Tea**
+  - Three-panel layout (stats, languages table, history) with tab navigation.
+    Uses `join_horizontal`, `join_vertical`, `place`, rounded/thick borders,
+    color styling, `table.Table`, and a styled status bar.
+  - File: `examples/bubbletea_layout.py`
 
 ---
 
