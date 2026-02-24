@@ -30,17 +30,23 @@ Foundation files needed before any implementation work begins.
   - Package verified importable via `pip install -e ".[dev]"`.
   - Files: full `lipgloss/` package tree, `tests/__init__.py`
 
-- [ ] **Add `py.typed` marker file (PEP 561)**
+- [x] **Add `py.typed` marker file (PEP 561)**
   - Empty marker file signals to type checkers that this package ships inline types.
-  - File: `lipgloss/py.typed` (new), `pyproject.toml` (update package-data)
+  - Created as part of task 1.2; `pyproject.toml` already includes it in package-data.
+  - File: `lipgloss/py.typed`
 
-- [ ] **Create `__init__.py` with public API exports**
-  - Export all public symbols: `Style`, `new_style`, color types, border factories,
-    `Position` constants (`Top`, `Bottom`, `Left`, `Right`, `Center`),
-    `join_horizontal`, `join_vertical`, `place`, `place_horizontal`,
-    `place_vertical`, `width`, `height`, `size`, `style_runes`,
-    `Renderer`, `default_renderer`, `set_default_renderer`, `new_renderer`.
-  - File: `lipgloss/__init__.py` (new)
+- [x] **Create `__init__.py` with public API exports**
+  - All public symbols exported and verified importable: `Style`, `new_style`,
+    color types (`Color`, `ANSIColor`, `AdaptiveColor`, `CompleteColor`,
+    `CompleteAdaptiveColor`, `NoColor`, `TerminalColor`), all border factories,
+    `Position` constants, `join_horizontal`, `join_vertical`, `place`,
+    `place_horizontal`, `place_vertical`, `width`, `height`, `size`,
+    `style_runes`, `ColorProfile`, `Renderer`, `default_renderer`,
+    `set_default_renderer`, `new_renderer`, whitespace option helpers.
+  - Stub implementations added to all modules; non-rendering methods are
+    fully functional; `render()`, `join_*`, `place_*`, `style_runes` raise
+    `NotImplementedError` pending their respective MVP tasks.
+  - File: `lipgloss/__init__.py`
 
 ---
 
