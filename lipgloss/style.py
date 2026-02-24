@@ -406,13 +406,22 @@ class Style:
         s._value = self._value
         return s
 
+    # Keys that are never inherited (matches Go's Inherit() exclusions).
+    _NO_INHERIT = frozenset({
+        "margin_top", "margin_right", "margin_bottom", "margin_left",
+        "padding_top", "padding_right", "padding_bottom", "padding_left",
+    })
+
     def inherit(self, parent: "Style") -> "Style":
         """Copy unset properties from *parent*.
 
         Properties already set on this style are not overridden.
+        Margins and padding are never inherited (matches Go behaviour).
         """
         s = self.copy()
         for key, value in parent._props.items():
+            if key in self._NO_INHERIT:
+                continue
             if key not in s._props:
                 s._props[key] = deepcopy(value)
         return s
