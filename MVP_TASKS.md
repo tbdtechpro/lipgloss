@@ -13,20 +13,22 @@ Completed items are checked off.
 
 Foundation files needed before any implementation work begins.
 
-- [ ] **Create `pyproject.toml` and `setup.py`**
+- [x] **Create `pyproject.toml` and `setup.py`**
   - Package name: `lipgloss`, version `0.1.0`.
   - Python 3.10+ required.
   - Dev extras: `pytest`, `pytest-cov`, `black`, `isort`, `flake8`, `mypy`.
   - Runtime dependency: `wcwidth` (ANSI-aware string width).
-  - Files: `pyproject.toml` (new), `setup.py` (new)
+  - Files: `pyproject.toml`, `setup.py`
 
-- [ ] **Create package directory structure**
+- [x] **Create package directory structure**
   - Root package `lipgloss/` with `__init__.py`, `style.py`, `color.py`,
     `borders.py`, `renderer.py`, `position.py`, `whitespace.py`, `size.py`,
     `join.py`, `runes.py`.
   - Sub-packages: `lipgloss/table/`, `lipgloss/list/`, `lipgloss/tree/` each
     with their own `__init__.py`.
-  - Files: package directory tree (new)
+  - All stub files include docstrings referencing the corresponding Go source file.
+  - Package verified importable via `pip install -e ".[dev]"`.
+  - Files: full `lipgloss/` package tree, `tests/__init__.py`
 
 - [ ] **Add `py.typed` marker file (PEP 561)**
   - Empty marker file signals to type checkers that this package ships inline types.
