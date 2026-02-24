@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lipgloss"
+version = "0.1.0"
+description = "CSS-like terminal styling for Python — port of the Go Lip Gloss library"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Charm", email = "vt100@charm.sh"}
+]
+keywords = [
+    "tui",
+    "terminal",
+    "cli",
+    "console",
+    "styling",
+    "ansi",
+    "lipgloss",
+    "charm",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Terminals",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "wcwidth>=0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "mypy",
+    "black",
+    "isort",
+    "flake8",
+]
+
+[project.urls]
+Homepage = "https://github.com/tbdtechpro/lipgloss"
+Documentation = "https://github.com/tbdtechpro/lipgloss#readme"
+Repository = "https://github.com/tbdtechpro/lipgloss"
+Issues = "https://github.com/tbdtechpro/lipgloss/issues"
+"Original Go Library" = "https://github.com/charmbracelet/lipgloss"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lipgloss*"]
+exclude = ["tests*", "examples*"]
+
+[tool.setuptools.package-data]
+lipgloss = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["."]
