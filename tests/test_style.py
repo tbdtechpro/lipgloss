@@ -6,7 +6,6 @@ import lipgloss
 from lipgloss.color import Color, NoColor
 from lipgloss.renderer import Renderer
 
-
 # ---------------------------------------------------------------------------
 # Immutability / copy
 # ---------------------------------------------------------------------------

@@ -13,7 +13,6 @@ from lipgloss.color import (
 )
 from lipgloss.renderer import ColorProfile, Renderer
 
-
 # ---------------------------------------------------------------------------
 # Protocol conformance
 # ---------------------------------------------------------------------------

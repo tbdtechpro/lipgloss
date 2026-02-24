@@ -5,7 +5,6 @@ from __future__ import annotations
 import lipgloss
 from lipgloss.join import join_horizontal, join_vertical
 
-
 # ---------------------------------------------------------------------------
 # join_horizontal — basic
 # ---------------------------------------------------------------------------

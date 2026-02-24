@@ -60,50 +60,95 @@ def _border_edge_width(*parts: str) -> int:
 def normal_border() -> Border:
     """Single-line box drawing with 90-degree corners."""
     return Border(
-        top="─", bottom="─", left="│", right="│",
-        top_left="┌", top_right="┐", bottom_left="└", bottom_right="┘",
-        middle_left="├", middle_right="┤", middle="┼",
-        middle_top="┬", middle_bottom="┴",
+        top="─",
+        bottom="─",
+        left="│",
+        right="│",
+        top_left="┌",
+        top_right="┐",
+        bottom_left="└",
+        bottom_right="┘",
+        middle_left="├",
+        middle_right="┤",
+        middle="┼",
+        middle_top="┬",
+        middle_bottom="┴",
     )
 
 
 def rounded_border() -> Border:
     """Single-line box drawing with rounded corners."""
     return Border(
-        top="─", bottom="─", left="│", right="│",
-        top_left="╭", top_right="╮", bottom_left="╰", bottom_right="╯",
-        middle_left="├", middle_right="┤", middle="┼",
-        middle_top="┬", middle_bottom="┴",
+        top="─",
+        bottom="─",
+        left="│",
+        right="│",
+        top_left="╭",
+        top_right="╮",
+        bottom_left="╰",
+        bottom_right="╯",
+        middle_left="├",
+        middle_right="┤",
+        middle="┼",
+        middle_top="┬",
+        middle_bottom="┴",
     )
 
 
 def thick_border() -> Border:
     """Heavy box drawing characters."""
     return Border(
-        top="━", bottom="━", left="┃", right="┃",
-        top_left="┏", top_right="┓", bottom_left="┗", bottom_right="┛",
-        middle_left="┣", middle_right="┫", middle="╋",
-        middle_top="┳", middle_bottom="┻",
+        top="━",
+        bottom="━",
+        left="┃",
+        right="┃",
+        top_left="┏",
+        top_right="┓",
+        bottom_left="┗",
+        bottom_right="┛",
+        middle_left="┣",
+        middle_right="┫",
+        middle="╋",
+        middle_top="┳",
+        middle_bottom="┻",
     )
 
 
 def double_border() -> Border:
     """Double-line box drawing characters."""
     return Border(
-        top="═", bottom="═", left="║", right="║",
-        top_left="╔", top_right="╗", bottom_left="╚", bottom_right="╝",
-        middle_left="╠", middle_right="╣", middle="╬",
-        middle_top="╦", middle_bottom="╩",
+        top="═",
+        bottom="═",
+        left="║",
+        right="║",
+        top_left="╔",
+        top_right="╗",
+        bottom_left="╚",
+        bottom_right="╝",
+        middle_left="╠",
+        middle_right="╣",
+        middle="╬",
+        middle_top="╦",
+        middle_bottom="╩",
     )
 
 
 def ascii_border() -> Border:
     """Plain ASCII border using +, -, and |."""
     return Border(
-        top="-", bottom="-", left="|", right="|",
-        top_left="+", top_right="+", bottom_left="+", bottom_right="+",
-        middle_left="+", middle_right="+", middle="+",
-        middle_top="+", middle_bottom="+",
+        top="-",
+        bottom="-",
+        left="|",
+        right="|",
+        top_left="+",
+        top_right="+",
+        bottom_left="+",
+        bottom_right="+",
+        middle_left="+",
+        middle_right="+",
+        middle="+",
+        middle_top="+",
+        middle_bottom="+",
     )
 
 
@@ -115,44 +160,83 @@ def markdown_border() -> Border:
         table.New().border(markdown_border()).border_top(False).border_bottom(False)
     """
     return Border(
-        top="-", bottom="-", left="|", right="|",
-        top_left="|", top_right="|", bottom_left="|", bottom_right="|",
-        middle_left="|", middle_right="|", middle="|",
-        middle_top="|", middle_bottom="|",
+        top="-",
+        bottom="-",
+        left="|",
+        right="|",
+        top_left="|",
+        top_right="|",
+        bottom_left="|",
+        bottom_right="|",
+        middle_left="|",
+        middle_right="|",
+        middle="|",
+        middle_top="|",
+        middle_bottom="|",
     )
 
 
 def hidden_border() -> Border:
     """Space characters — preserves layout spacing without visible lines."""
     return Border(
-        top=" ", bottom=" ", left=" ", right=" ",
-        top_left=" ", top_right=" ", bottom_left=" ", bottom_right=" ",
-        middle_left=" ", middle_right=" ", middle=" ",
-        middle_top=" ", middle_bottom=" ",
+        top=" ",
+        bottom=" ",
+        left=" ",
+        right=" ",
+        top_left=" ",
+        top_right=" ",
+        bottom_left=" ",
+        bottom_right=" ",
+        middle_left=" ",
+        middle_right=" ",
+        middle=" ",
+        middle_top=" ",
+        middle_bottom=" ",
     )
 
 
 def block_border() -> Border:
     """Full block characters (█) on all sides."""
     return Border(
-        top="█", bottom="█", left="█", right="█",
-        top_left="█", top_right="█", bottom_left="█", bottom_right="█",
-        middle_left="█", middle_right="█", middle="█",
-        middle_top="█", middle_bottom="█",
+        top="█",
+        bottom="█",
+        left="█",
+        right="█",
+        top_left="█",
+        top_right="█",
+        bottom_left="█",
+        bottom_right="█",
+        middle_left="█",
+        middle_right="█",
+        middle="█",
+        middle_top="█",
+        middle_bottom="█",
     )
 
 
 def outer_half_block_border() -> Border:
     """Half-block border that sits outside the frame."""
     return Border(
-        top="▀", bottom="▄", left="▌", right="▐",
-        top_left="▛", top_right="▜", bottom_left="▙", bottom_right="▟",
+        top="▀",
+        bottom="▄",
+        left="▌",
+        right="▐",
+        top_left="▛",
+        top_right="▜",
+        bottom_left="▙",
+        bottom_right="▟",
     )
 
 
 def inner_half_block_border() -> Border:
     """Half-block border that sits inside the frame."""
     return Border(
-        top="▄", bottom="▀", left="▐", right="▌",
-        top_left="▗", top_right="▖", bottom_left="▝", bottom_right="▘",
+        top="▄",
+        bottom="▀",
+        left="▐",
+        right="▌",
+        top_left="▗",
+        top_right="▖",
+        bottom_left="▝",
+        bottom_right="▘",
     )

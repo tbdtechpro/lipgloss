@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
     from .borders import Border
@@ -144,7 +144,9 @@ class Style:
                 params.extend(_extract_sgr_params(_fg_to_bg_escape(bg)))
             return "\x1b[" + ";".join(params) + "m" if params else ""
 
-        main_sgr = _build_sgr(bold, italic, underline, strikethrough, reverse, blink, faint, fg_esc, bg_esc)
+        main_sgr = _build_sgr(
+            bold, italic, underline, strikethrough, reverse, blink, faint, fg_esc, bg_esc
+        )
         reset = "\x1b[0m" if main_sgr else ""
 
         # Whitespace styler (for padding/margin background, reverse)
@@ -237,7 +239,9 @@ class Style:
         # Horizontal alignment (also normalises line widths)
         num_lines = str_.count("\n")
         if num_lines != 0 or width_ != 0:
-            str_ = _align_text_horizontal(str_, h_align, width_, style_ws if (color_whitespace or style_whitespace) else None)
+            str_ = _align_text_horizontal(
+                str_, h_align, width_, style_ws if (color_whitespace or style_whitespace) else None
+            )
 
         if not inline:
             str_ = self._apply_border(str_)
@@ -269,12 +273,14 @@ class Style:
         has_left = self._get("border_left", False)
 
         # If a border style is set but no sides explicitly chosen, show all sides.
-        if border is not None and not any([
-            self._is_set("border_top"),
-            self._is_set("border_right"),
-            self._is_set("border_bottom"),
-            self._is_set("border_left"),
-        ]):
+        if border is not None and not any(
+            [
+                self._is_set("border_top"),
+                self._is_set("border_right"),
+                self._is_set("border_bottom"),
+                self._is_set("border_left"),
+            ]
+        ):
             has_top = has_right = has_bottom = has_left = True
 
         if border is None or not any([has_top, has_right, has_bottom, has_left]):
@@ -315,7 +321,9 @@ class Style:
 
         out: list[str] = []
 
-        def _style_border_part(s: str, fg: "TerminalColor | None", bg: "TerminalColor | None") -> str:
+        def _style_border_part(
+            s: str, fg: "TerminalColor | None", bg: "TerminalColor | None"
+        ) -> str:
             if not s:
                 return s
             fg_e = fg.resolve(self._renderer) if fg is not None else ""
@@ -350,7 +358,9 @@ class Style:
             out.append(row)
 
         if has_bottom:
-            bot_str = _render_horizontal_edge(bottom_left, border.bottom, bottom_right, content_width)
+            bot_str = _render_horizontal_edge(
+                bottom_left, border.bottom, bottom_right, content_width
+            )
             out.append(_style_border_part(bot_str, bottom_fg, bottom_bg))
 
         return "\n".join(out)
@@ -407,10 +417,18 @@ class Style:
         return s
 
     # Keys that are never inherited (matches Go's Inherit() exclusions).
-    _NO_INHERIT = frozenset({
-        "margin_top", "margin_right", "margin_bottom", "margin_left",
-        "padding_top", "padding_right", "padding_bottom", "padding_left",
-    })
+    _NO_INHERIT = frozenset(
+        {
+            "margin_top",
+            "margin_right",
+            "margin_bottom",
+            "margin_left",
+            "padding_top",
+            "padding_right",
+            "padding_bottom",
+            "padding_left",
+        }
+    )
 
     def inherit(self, parent: "Style") -> "Style":
         """Copy unset properties from *parent*.
@@ -469,7 +487,7 @@ class Style:
         return self._set("bold", v)
 
     def get_bold(self) -> bool:
-        return self._get("bold", False)
+        return bool(self._get("bold", False))
 
     def unset_bold(self) -> "Style":
         return self._unset("bold")
@@ -479,7 +497,7 @@ class Style:
         return self._set("italic", v)
 
     def get_italic(self) -> bool:
-        return self._get("italic", False)
+        return bool(self._get("italic", False))
 
     def unset_italic(self) -> "Style":
         return self._unset("italic")
@@ -489,7 +507,7 @@ class Style:
         return self._set("underline", v)
 
     def get_underline(self) -> bool:
-        return self._get("underline", False)
+        return bool(self._get("underline", False))
 
     def unset_underline(self) -> "Style":
         return self._unset("underline")
@@ -499,7 +517,7 @@ class Style:
         return self._set("strikethrough", v)
 
     def get_strikethrough(self) -> bool:
-        return self._get("strikethrough", False)
+        return bool(self._get("strikethrough", False))
 
     def unset_strikethrough(self) -> "Style":
         return self._unset("strikethrough")
@@ -509,7 +527,7 @@ class Style:
         return self._set("reverse", v)
 
     def get_reverse(self) -> bool:
-        return self._get("reverse", False)
+        return bool(self._get("reverse", False))
 
     def unset_reverse(self) -> "Style":
         return self._unset("reverse")
@@ -519,7 +537,7 @@ class Style:
         return self._set("blink", v)
 
     def get_blink(self) -> bool:
-        return self._get("blink", False)
+        return bool(self._get("blink", False))
 
     def unset_blink(self) -> "Style":
         return self._unset("blink")
@@ -529,7 +547,7 @@ class Style:
         return self._set("faint", v)
 
     def get_faint(self) -> bool:
-        return self._get("faint", False)
+        return bool(self._get("faint", False))
 
     def unset_faint(self) -> "Style":
         return self._unset("faint")
@@ -539,7 +557,7 @@ class Style:
         return self._set("underline_spaces", v)
 
     def get_underline_spaces(self) -> bool:
-        return self._get("underline_spaces", False)
+        return bool(self._get("underline_spaces", False))
 
     def unset_underline_spaces(self) -> "Style":
         return self._unset("underline_spaces")
@@ -549,7 +567,7 @@ class Style:
         return self._set("strikethrough_spaces", v)
 
     def get_strikethrough_spaces(self) -> bool:
-        return self._get("strikethrough_spaces", False)
+        return bool(self._get("strikethrough_spaces", False))
 
     def unset_strikethrough_spaces(self) -> "Style":
         return self._unset("strikethrough_spaces")
@@ -559,7 +577,7 @@ class Style:
         return self._set("color_whitespace", v)
 
     def get_color_whitespace(self) -> bool:
-        return self._get("color_whitespace", True)
+        return bool(self._get("color_whitespace", True))
 
     def unset_color_whitespace(self) -> "Style":
         return self._unset("color_whitespace")
@@ -573,7 +591,7 @@ class Style:
         return self._set("foreground", c)
 
     def get_foreground(self) -> "TerminalColor | None":
-        return self._get("foreground")
+        return cast("TerminalColor | None", self._get("foreground"))
 
     def unset_foreground(self) -> "Style":
         return self._unset("foreground")
@@ -583,7 +601,7 @@ class Style:
         return self._set("background", c)
 
     def get_background(self) -> "TerminalColor | None":
-        return self._get("background")
+        return cast("TerminalColor | None", self._get("background"))
 
     def unset_background(self) -> "Style":
         return self._unset("background")
@@ -597,7 +615,7 @@ class Style:
         return self._set("width", n)
 
     def get_width(self) -> int:
-        return self._get("width", 0)
+        return int(self._get("width", 0))
 
     def unset_width(self) -> "Style":
         return self._unset("width")
@@ -607,7 +625,7 @@ class Style:
         return self._set("height", n)
 
     def get_height(self) -> int:
-        return self._get("height", 0)
+        return int(self._get("height", 0))
 
     def unset_height(self) -> "Style":
         return self._unset("height")
@@ -617,7 +635,7 @@ class Style:
         return self._set("max_width", n)
 
     def get_max_width(self) -> int:
-        return self._get("max_width", 0)
+        return int(self._get("max_width", 0))
 
     def unset_max_width(self) -> "Style":
         return self._unset("max_width")
@@ -627,7 +645,7 @@ class Style:
         return self._set("max_height", n)
 
     def get_max_height(self) -> int:
-        return self._get("max_height", 0)
+        return int(self._get("max_height", 0))
 
     def unset_max_height(self) -> "Style":
         return self._unset("max_height")
@@ -650,7 +668,7 @@ class Style:
         return self._set("padding_top", n)
 
     def get_padding_top(self) -> int:
-        return self._get("padding_top", 0)
+        return int(self._get("padding_top", 0))
 
     def unset_padding_top(self) -> "Style":
         return self._unset("padding_top")
@@ -659,7 +677,7 @@ class Style:
         return self._set("padding_right", n)
 
     def get_padding_right(self) -> int:
-        return self._get("padding_right", 0)
+        return int(self._get("padding_right", 0))
 
     def unset_padding_right(self) -> "Style":
         return self._unset("padding_right")
@@ -668,7 +686,7 @@ class Style:
         return self._set("padding_bottom", n)
 
     def get_padding_bottom(self) -> int:
-        return self._get("padding_bottom", 0)
+        return int(self._get("padding_bottom", 0))
 
     def unset_padding_bottom(self) -> "Style":
         return self._unset("padding_bottom")
@@ -677,7 +695,7 @@ class Style:
         return self._set("padding_left", n)
 
     def get_padding_left(self) -> int:
-        return self._get("padding_left", 0)
+        return int(self._get("padding_left", 0))
 
     def unset_padding_left(self) -> "Style":
         return self._unset("padding_left")
@@ -700,7 +718,7 @@ class Style:
         return self._set("margin_top", n)
 
     def get_margin_top(self) -> int:
-        return self._get("margin_top", 0)
+        return int(self._get("margin_top", 0))
 
     def unset_margin_top(self) -> "Style":
         return self._unset("margin_top")
@@ -709,7 +727,7 @@ class Style:
         return self._set("margin_right", n)
 
     def get_margin_right(self) -> int:
-        return self._get("margin_right", 0)
+        return int(self._get("margin_right", 0))
 
     def unset_margin_right(self) -> "Style":
         return self._unset("margin_right")
@@ -718,7 +736,7 @@ class Style:
         return self._set("margin_bottom", n)
 
     def get_margin_bottom(self) -> int:
-        return self._get("margin_bottom", 0)
+        return int(self._get("margin_bottom", 0))
 
     def unset_margin_bottom(self) -> "Style":
         return self._unset("margin_bottom")
@@ -727,7 +745,7 @@ class Style:
         return self._set("margin_left", n)
 
     def get_margin_left(self) -> int:
-        return self._get("margin_left", 0)
+        return int(self._get("margin_left", 0))
 
     def unset_margin_left(self) -> "Style":
         return self._unset("margin_left")
@@ -737,7 +755,7 @@ class Style:
         return self._set("margin_background", c)
 
     def get_margin_background(self) -> "TerminalColor | None":
-        return self._get("margin_background")
+        return cast("TerminalColor | None", self._get("margin_background"))
 
     def unset_margin_background(self) -> "Style":
         return self._unset("margin_background")
@@ -767,7 +785,7 @@ class Style:
         return self._set("border_style", b)
 
     def get_border_style(self) -> "Border | None":
-        return self._get("border_style")
+        return cast("Border | None", self._get("border_style"))
 
     def unset_border_style(self) -> "Style":
         return self._unset("border_style")
@@ -776,7 +794,7 @@ class Style:
         return self._set("border_top", v)
 
     def get_border_top(self) -> bool:
-        return self._get("border_top", False)
+        return bool(self._get("border_top", False))
 
     def unset_border_top(self) -> "Style":
         return self._unset("border_top")
@@ -785,7 +803,7 @@ class Style:
         return self._set("border_right", v)
 
     def get_border_right(self) -> bool:
-        return self._get("border_right", False)
+        return bool(self._get("border_right", False))
 
     def unset_border_right(self) -> "Style":
         return self._unset("border_right")
@@ -794,7 +812,7 @@ class Style:
         return self._set("border_bottom", v)
 
     def get_border_bottom(self) -> bool:
-        return self._get("border_bottom", False)
+        return bool(self._get("border_bottom", False))
 
     def unset_border_bottom(self) -> "Style":
         return self._unset("border_bottom")
@@ -803,7 +821,7 @@ class Style:
         return self._set("border_left", v)
 
     def get_border_left(self) -> bool:
-        return self._get("border_left", False)
+        return bool(self._get("border_left", False))
 
     def unset_border_left(self) -> "Style":
         return self._unset("border_left")
@@ -823,7 +841,7 @@ class Style:
         return self._set("border_top_foreground", c)
 
     def get_border_top_foreground(self) -> "TerminalColor | None":
-        return self._get("border_top_foreground")
+        return cast("TerminalColor | None", self._get("border_top_foreground"))
 
     def unset_border_top_foreground(self) -> "Style":
         return self._unset("border_top_foreground")
@@ -832,7 +850,7 @@ class Style:
         return self._set("border_right_foreground", c)
 
     def get_border_right_foreground(self) -> "TerminalColor | None":
-        return self._get("border_right_foreground")
+        return cast("TerminalColor | None", self._get("border_right_foreground"))
 
     def unset_border_right_foreground(self) -> "Style":
         return self._unset("border_right_foreground")
@@ -841,7 +859,7 @@ class Style:
         return self._set("border_bottom_foreground", c)
 
     def get_border_bottom_foreground(self) -> "TerminalColor | None":
-        return self._get("border_bottom_foreground")
+        return cast("TerminalColor | None", self._get("border_bottom_foreground"))
 
     def unset_border_bottom_foreground(self) -> "Style":
         return self._unset("border_bottom_foreground")
@@ -850,7 +868,7 @@ class Style:
         return self._set("border_left_foreground", c)
 
     def get_border_left_foreground(self) -> "TerminalColor | None":
-        return self._get("border_left_foreground")
+        return cast("TerminalColor | None", self._get("border_left_foreground"))
 
     def unset_border_left_foreground(self) -> "Style":
         return self._unset("border_left_foreground")
@@ -870,7 +888,7 @@ class Style:
         return self._set("border_top_background", c)
 
     def get_border_top_background(self) -> "TerminalColor | None":
-        return self._get("border_top_background")
+        return cast("TerminalColor | None", self._get("border_top_background"))
 
     def unset_border_top_background(self) -> "Style":
         return self._unset("border_top_background")
@@ -879,7 +897,7 @@ class Style:
         return self._set("border_right_background", c)
 
     def get_border_right_background(self) -> "TerminalColor | None":
-        return self._get("border_right_background")
+        return cast("TerminalColor | None", self._get("border_right_background"))
 
     def unset_border_right_background(self) -> "Style":
         return self._unset("border_right_background")
@@ -888,7 +906,7 @@ class Style:
         return self._set("border_bottom_background", c)
 
     def get_border_bottom_background(self) -> "TerminalColor | None":
-        return self._get("border_bottom_background")
+        return cast("TerminalColor | None", self._get("border_bottom_background"))
 
     def unset_border_bottom_background(self) -> "Style":
         return self._unset("border_bottom_background")
@@ -897,7 +915,7 @@ class Style:
         return self._set("border_left_background", c)
 
     def get_border_left_background(self) -> "TerminalColor | None":
-        return self._get("border_left_background")
+        return cast("TerminalColor | None", self._get("border_left_background"))
 
     def unset_border_left_background(self) -> "Style":
         return self._unset("border_left_background")
@@ -924,7 +942,8 @@ class Style:
 
     def get_align_horizontal(self) -> "Position":
         from .position import Left
-        return self._get("align_horizontal", Left)
+
+        return float(self._get("align_horizontal", Left))
 
     def unset_align_horizontal(self) -> "Style":
         return self._unset("align_horizontal")
@@ -934,7 +953,8 @@ class Style:
 
     def get_align_vertical(self) -> "Position":
         from .position import Top
-        return self._get("align_vertical", Top)
+
+        return float(self._get("align_vertical", Top))
 
     def unset_align_vertical(self) -> "Style":
         return self._unset("align_vertical")
@@ -948,7 +968,7 @@ class Style:
         return self._set("inline", v)
 
     def get_inline(self) -> bool:
-        return self._get("inline", False)
+        return bool(self._get("inline", False))
 
     def unset_inline(self) -> "Style":
         return self._unset("inline")
@@ -958,7 +978,7 @@ class Style:
         return self._set("tab_width", n)
 
     def get_tab_width(self) -> int:
-        return self._get("tab_width", 4)
+        return int(self._get("tab_width", 4))
 
     def unset_tab_width(self) -> "Style":
         return self._unset("tab_width")
@@ -968,7 +988,7 @@ class Style:
         return self._set("transform", fn)
 
     def get_transform(self) -> "Callable[[str], str] | None":
-        return self._get("transform")
+        return cast("Callable[[str], str] | None", self._get("transform"))
 
     def unset_transform(self) -> "Style":
         return self._unset("transform")
@@ -1029,6 +1049,7 @@ def _char_width(ch: str) -> int:
         return 0
     try:
         from wcwidth import wcwidth  # type: ignore[import]
+
         w = wcwidth(ch)
         return w if w >= 0 else 1
     except ImportError:
@@ -1039,6 +1060,7 @@ def _visible_width(line: str) -> int:
     stripped = _strip_ansi(line)
     try:
         from wcwidth import wcswidth  # type: ignore[import]
+
         w = wcswidth(stripped)
         return w if w >= 0 else len(stripped)
     except ImportError:

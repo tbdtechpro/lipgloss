@@ -22,20 +22,6 @@ Example usage::
 
 __version__ = "0.1.0"
 
-# Style
-from .style import Style, new_style
-
-# Color types
-from .color import (
-    AdaptiveColor,
-    ANSIColor,
-    Color,
-    CompleteAdaptiveColor,
-    CompleteColor,
-    NoColor,
-    TerminalColor,
-)
-
 # Borders
 from .borders import (
     Border,
@@ -51,6 +37,20 @@ from .borders import (
     thick_border,
 )
 
+# Color types
+from .color import (
+    AdaptiveColor,
+    ANSIColor,
+    Color,
+    CompleteAdaptiveColor,
+    CompleteColor,
+    NoColor,
+    TerminalColor,
+)
+
+# Layout utilities
+from .join import join_horizontal, join_vertical
+
 # Position constants and placement functions
 from .position import (
     Bottom,
@@ -64,20 +64,25 @@ from .position import (
     place_vertical,
 )
 
-# Whitespace options
-from .whitespace import WhitespaceOption, whitespace_background, whitespace_chars, whitespace_foreground
-
-# Layout utilities
-from .join import join_horizontal, join_vertical
-
-# Measurement
-from .size import height, size, width
+# Renderer
+from .renderer import ColorProfile, Renderer, default_renderer, new_renderer, set_default_renderer
 
 # Per-rune styling
 from .runes import style_runes
 
-# Renderer
-from .renderer import ColorProfile, Renderer, default_renderer, new_renderer, set_default_renderer
+# Measurement
+from .size import height, size, width
+
+# Style
+from .style import Style, new_style
+
+# Whitespace options
+from .whitespace import (
+    WhitespaceOption,
+    whitespace_background,
+    whitespace_chars,
+    whitespace_foreground,
+)
 
 __all__ = [
     # Version

@@ -183,12 +183,12 @@ def _ansi256_to_ansi16(idx: int) -> int:
         # Grayscale ramp — map to black, dark-gray, light-gray or white
         level = idx - 232  # 0–23
         if level < 6:
-            return 0   # black
+            return 0  # black
         if level < 12:
-            return 8   # dark gray (bright black)
+            return 8  # dark gray (bright black)
         if level < 18:
-            return 7   # light gray
-        return 15      # white
+            return 7  # light gray
+        return 15  # white
     # Colour cube: convert cube indices back to approximate RGB
     idx -= 16
     b_i = idx % 6
@@ -200,7 +200,7 @@ def _ansi256_to_ansi16(idx: int) -> int:
     # Pick nearest of 8 basic colours by hue/brightness heuristic
     bright = (r + g + b) > 382  # roughly above mid-point → use bright variant
     if r > g and r > b:
-        return 9 if bright else 1   # red
+        return 9 if bright else 1  # red
     if g > r and g > b:
         return 10 if bright else 2  # green
     if b > r and b > g:
@@ -211,7 +211,7 @@ def _ansi256_to_ansi16(idx: int) -> int:
         return 13 if bright else 5  # magenta
     if g > r and b > r:
         return 14 if bright else 6  # cyan
-    return 15 if bright else 0      # white / black
+    return 15 if bright else 0  # white / black
 
 
 # ---------------------------------------------------------------------------

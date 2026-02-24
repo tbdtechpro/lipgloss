@@ -19,6 +19,7 @@ Key API (all setters return self for chaining):
 
 HeaderRow sentinel constant: use in style_func to identify the header row (row == HeaderRow).
 """
+
 from __future__ import annotations
 
 from typing import Callable

@@ -8,6 +8,7 @@ from lipgloss.runes import style_runes
 
 def _strip_ansi(s: str) -> str:
     import re
+
     return re.sub(r"\x1b\[[0-9;]*m", "", s)
 
 
