@@ -43,8 +43,8 @@ Foundation files needed before any implementation work begins.
     `place_horizontal`, `place_vertical`, `width`, `height`, `size`,
     `style_runes`, `ColorProfile`, `Renderer`, `default_renderer`,
     `set_default_renderer`, `new_renderer`, whitespace option helpers.
-  - All core rendering is fully implemented. `style_runes` and the table/list/tree
-    sub-packages still raise `NotImplementedError` (tasks 5.5, 6, 7, 8).
+  - All core rendering is fully implemented. `style_runes`, `table`, and `list`
+    sub-packages are complete. The `tree` sub-package (task 8) is still a stub.
   - File: `lipgloss/__init__.py`
 
 ---
@@ -227,7 +227,7 @@ The central component of the library. All other rendering features depend on `St
   - Reference: `whitespace.go`.
   - File: `lipgloss/whitespace.py` (new)
 
-- [ ] **Implement `style_runes`**
+- [x] **Implement `style_runes`**
   - `style_runes(s: str, indices: list[int], matched: Style, unmatched: Style) -> str`:
     apply `matched` style to characters at `indices`, `unmatched` to the rest.
   - Reference: `runes.go`.
@@ -237,7 +237,7 @@ The central component of the library. All other rendering features depend on `St
 
 ## 6. Table Sub-package
 
-- [ ] **Implement `Table` class (core)**
+- [x] **Implement `Table` class (core)**
   - `Table()` constructor; method-chaining builder.
   - `.headers(*cols: str)` — set header row.
   - `.rows(*rows: list[str])` — set all data rows at once.
@@ -247,9 +247,9 @@ The central component of the library. All other rendering features depend on `St
   - `.offset(n: int)` — starting row offset for scrolling.
   - `.__str__() / .render() -> str` — render to ANSI string.
   - Reference: `table/table.go`.
-  - File: `lipgloss/table/table.py` (new)
+  - File: `lipgloss/table/table.py`
 
-- [ ] **Implement table styling**
+- [x] **Implement table styling**
   - `.border(b: Border)` — set border style.
   - `.border_top(v: bool)` / `.border_bottom(v: bool)` / `.border_left(v: bool)` /
     `.border_right(v: bool)` / `.border_header(v: bool)` / `.border_column(v: bool)`.
@@ -258,22 +258,22 @@ The central component of the library. All other rendering features depend on `St
     header row (use `table.HeaderRow` sentinel constant).
   - File: `lipgloss/table/table.py`
 
-- [ ] **Implement column resizing algorithm**
+- [x] **Implement column resizing algorithm**
   - Port the flex-sizing algorithm from `table/resizing.go`: distribute available
     width across columns, respecting min-width (content) and table-level constraints.
-  - File: `lipgloss/table/resizing.py` (new)
+  - File: `lipgloss/table/resizing.py`
 
-- [ ] **Implement `Rows` abstraction**
+- [x] **Implement `Rows` abstraction**
   - `StringData(*rows)`: wraps a list-of-lists for use as table data.
   - `Filter(data, fn)`: wraps a data source with a row-filter predicate.
   - Reference: `table/rows.go`.
-  - File: `lipgloss/table/rows.py` (new)
+  - File: `lipgloss/table/rows.py`
 
 ---
 
 ## 7. List Sub-package
 
-- [ ] **Implement `List` class**
+- [x] **Implement `List` class**
   - `List(*items)` constructor; method-chaining builder.
   - Items can be `str` (leaf) or another `List` (nested sub-list).
   - `.item(*items)` — append items incrementally.
@@ -282,16 +282,17 @@ The central component of the library. All other rendering features depend on `St
   - `.item_style(s: Style)` — style applied to each item's text.
   - `.__str__() / .render() -> str` — render to ANSI string.
   - Reference: `list/list.go`.
-  - File: `lipgloss/list/list.py` (new)
+  - File: `lipgloss/list/list.py`
 
-- [ ] **Implement built-in enumerators**
+- [x] **Implement built-in enumerators**
   - `Bullet` — `•` prefix.
   - `Arabic` — `1.`, `2.`, `3.` …
-  - `Alphabet` — `a.`, `b.`, `c.` …
-  - `Roman` — `i.`, `ii.`, `iii.` …
-  - `Tree` — tree-branch characters (uses the tree enumerator logic).
+  - `Alphabet` — `A.`, `B.`, `C.` … (uppercase; wraps to AA., AB., …)
+  - `Roman` — `I.`, `II.`, `III.` … (uppercase Roman numerals)
+  - `Asterisk` — `*` prefix.
+  - `Dash` — `-` prefix.
   - Reference: `list/enumerator.go`.
-  - File: `lipgloss/list/enumerator.py` (new)
+  - File: `lipgloss/list/enumerator.py`
 
 ---
 
@@ -369,20 +370,26 @@ The central component of the library. All other rendering features depend on `St
     content already fits, dimension preservation.
     File: `tests/test_position.py`
 
-- [ ] **Write unit tests for the table sub-package**
+- [x] **Write unit tests for `style_runes`**
+  - All matched, none matched, first/last/middle chars, empty string, alternating.
+  - File: `tests/test_runes.py`
+
+- [x] **Write unit tests for the table sub-package**
+  - `StringData`, `Filter` data sources.
   - Basic rendering with headers and rows.
-  - Border styles (normal, rounded, ASCII, markdown, none).
+  - Border styles (rounded default, ASCII, no borders, row separators).
   - Column resizing: content-driven widths, fixed table width.
   - `style_func` per-cell styling, `HeaderRow` sentinel.
   - Offset / scrolling.
-  - File: `tests/test_table.py` (new)
+  - File: `tests/test_table.py`
 
-- [ ] **Write unit tests for the list sub-package**
-  - All five built-in enumerators.
+- [x] **Write unit tests for the list sub-package**
+  - All six built-in enumerators: `Bullet`, `Arabic`, `Alphabet`, `Roman`, `Asterisk`, `Dash`.
   - Custom enumerator function.
-  - Nested lists (two levels).
+  - Nested lists (two levels) with correct indentation.
+  - Hidden lists.
   - `enumerator_style` and `item_style`.
-  - File: `tests/test_list.py` (new)
+  - File: `tests/test_list.py`
 
 - [ ] **Write unit tests for the tree sub-package**
   - Single-level tree with `default_enumerator` and `rounded_enumerator`.
