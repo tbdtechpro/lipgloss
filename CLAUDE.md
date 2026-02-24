@@ -4,12 +4,16 @@ This file provides guidance for AI assistants working in this repository.
 
 ## Repository Overview
 
-This repository contains two parallel implementations of the **Lip Gloss** terminal styling library:
+This repository is a **Go → Python translation project**. The Go source files are the reference implementation and exist solely to inform the development of the Python port. Once the Python translation reaches reasonable feature parity, the Go files will be removed.
 
-1. **Go library** (`github.com/charmbracelet/lipgloss`) — the original, battle-tested implementation, production-ready.
-2. **Python port** — a Python port of the Go library, mirroring the API in an idiomatic Python style (pre-alpha, in development).
+The subject of the translation is **Lip Gloss** — a terminal styling library by [Charm](https://charm.sh) that provides a CSS-like declarative API for composing styled terminal output. Users describe styles with chained method calls (colors, padding, borders, alignment) and call `render()` to produce ANSI-escaped strings.
 
-Lip Gloss provides a CSS-like declarative API for composing styled terminal output. Users describe styles with chained method calls (colors, padding, borders, alignment) and call `render()` / `Render()` to produce ANSI-escaped strings.
+### Role of each file type
+
+| File type | Purpose |
+|-----------|---------|
+| `.go` files | **Reference only.** Authoritative source of truth for behavior, API shape, and edge cases. Do not modify Go files except to understand them. They will be deleted once parity is reached. |
+| `.py` files | **The translation target.** All new development goes here. |
 
 ---
 
@@ -17,7 +21,7 @@ Lip Gloss provides a CSS-like declarative API for composing styled terminal outp
 
 ```
 lipgloss/
-├── # Go source files (root package `lipgloss`)
+├── # Go reference files (root package `lipgloss`) — read to inform Python translation
 ├── style.go                # Core Style struct; propKey bit-flag property system
 ├── set.go                  # All property setters (return Style by value)
 ├── get.go                  # All property getters
@@ -37,36 +41,36 @@ lipgloss/
 ├── go.mod                  # Go module: github.com/charmbracelet/lipgloss, go 1.24
 ├── go.sum
 │
-├── table/                  # Table rendering sub-package
+├── table/                  # Go reference: table rendering
 │   ├── table.go
 │   ├── rows.go
 │   ├── resizing.go
 │   └── table_test.go
 │
-├── list/                   # List rendering sub-package
+├── list/                   # Go reference: list rendering
 │   ├── list.go
 │   ├── enumerator.go
 │   └── list_test.go
 │
-├── tree/                   # Tree rendering sub-package
+├── tree/                   # Go reference: tree rendering
 │   ├── tree.go
 │   ├── children.go
 │   ├── enumerator.go
 │   ├── renderer.go
 │   └── tree_test.go
 │
-├── # Python port files (to be added alongside Go files)
-├── lipgloss.py             # (planned) Public API; Style class, color helpers, join/place utilities
-├── style.py                # (planned) Style implementation
-├── color.py                # (planned) Color types
-├── borders.py              # (planned) Border definitions
-├── renderer.py             # (planned) Renderer class
-├── table/table.py          # (planned) Table sub-package
-├── list/list.py            # (planned) List sub-package
-├── tree/tree.py            # (planned) Tree sub-package
-├── pyproject.toml          # (planned) Python packaging (requires Python 3.10+)
+├── # Python translation files (live alongside Go files during development)
+├── lipgloss.py             # Public API; Style class, color helpers, join/place utilities
+├── style.py                # Style implementation
+├── color.py                # Color types
+├── borders.py              # Border definitions
+├── renderer.py             # Renderer class
+├── table/table.py          # Table sub-package
+├── list/list.py            # List sub-package
+├── tree/tree.py            # Tree sub-package
+├── pyproject.toml          # Python packaging (requires Python 3.10+)
 │
-├── examples/               # Example programs
+├── examples/               # Go example programs (reference for Python examples)
 │   ├── layout/
 │   ├── list/
 │   ├── table/
@@ -83,93 +87,48 @@ lipgloss/
 
 ## Core Concept
 
-Lip Gloss is a **style-and-render** library. A `Style` holds declarative properties (colors, padding, margins, borders, alignment, width, height). Calling `Render(text)` applies those properties and returns an ANSI-escaped string ready to print.
+Lip Gloss is a **style-and-render** library. A `Style` holds declarative properties (colors, padding, margins, borders, alignment, width, height). Calling `render(text)` applies those properties and returns an ANSI-escaped string ready to print.
 
 ```
-NewStyle() → set properties → Render(text) → ANSI string
+Style() → set properties → render(text) → ANSI string
 ```
 
-Styles are **immutable value types** in Go: each setter returns a new `Style`. The Python port should replicate this — either via true immutability or by returning `self` after copy to enable fluent chaining.
+In Go, `Style` is an **immutable value type**: each setter returns a new `Style`. The Python port replicates this — setters return modified copies to enable fluent chaining without mutation side-effects.
 
 ---
 
-## Go Development
+## Go Reference — How to Read the Source
 
-### Running Tests
+When translating or understanding behavior, the key Go files to consult are:
 
-```bash
-go test ./...
-# with race detector (mirrors CI)
-go test -race ./...
-# table tests only
-go test ./table
-```
+| Question | Go file to read |
+|----------|----------------|
+| What properties does Style support? | `style.go` (the `propKey` constants) |
+| How does a setter work? | `set.go` |
+| How does rendering work? | `style.go` (`Render` method) |
+| How are colors resolved? | `color.go`, `renderer.go` |
+| How does `Inherit` work? | `get.go`, `set.go` (bit-flag checks) |
+| How are borders rendered? | `borders.go`, `style.go` |
+| How does `JoinHorizontal`/`JoinVertical` work? | `join.go` |
+| How is string width measured? | `size.go`, uses `ansi.StringWidth` |
+| How does the table layout algorithm work? | `table/table.go`, `table/resizing.go` |
+| How do list enumerators work? | `list/enumerator.go`, `list/list.go` |
+| How does tree rendering work? | `tree/tree.go`, `tree/enumerator.go` |
 
-Or via Task:
+### Key Go Conventions (informing Python design)
 
-```bash
-task test
-task test:table
-```
-
-### Updating Golden Files
-
-Snapshot/golden tests live in `testdata/` directories. Update them with:
-
-```bash
-go test ./... -update
-```
-
-### Running the Linter
-
-```bash
-task lint
-# equivalent to:
-golangci-lint run
-```
-
-### Linter Configuration (`.golangci.yml`)
-
-- **Version**: golangci-lint v2
-- **Formatters**: `gofumpt`, `goimports` (use these, not plain `gofmt`)
-- **Enabled linters**: `bodyclose`, `exhaustive`, `goconst`, `godot`, `gosec`, `misspell`, `nestif`, `nilerr`, `revive`, `unconvert`, `unparam`, `whitespace`, `wrapcheck`, and others
-- Tests are excluded from linting (`run.tests: false`)
-
-### Key Go Conventions
-
-- All exported types, functions, and variables must have godoc comments ending in a period (enforced by `godot`).
 - `Style` is a **value type** — all setters return a new `Style`. Never mutate in place.
-- Properties are stored as bit-flags (`propKey`). `Inherit()` only copies properties that are explicitly set on the parent.
-- Use `ansi.StringWidth` (not `len` or `utf8.RuneCountInString`) when measuring visible terminal width.
-- Platform-specific code uses `_unix.go` / `_windows.go` suffixes.
-- Wrap errors rather than returning them bare (`wrapcheck`).
-
-### Key Go Types
-
-| Type | Description |
-|------|-------------|
-| `Style` | Core styling struct; value type, immutable setters |
-| `Renderer` | Terminal output handler; detects color profile via `termenv` |
-| `TerminalColor` | Interface satisfied by `Color`, `NoColor`, `ANSIColor`, `AdaptiveColor`, `CompleteColor` |
-| `Border` | Struct of rune strings defining border characters |
-| `Position` | Float alias for alignment (0.0 = left/top, 0.5 = center, 1.0 = right/bottom) |
-
-### Go Color Types
-
-| Type | Usage |
-|------|-------|
-| `Color("21")` | ANSI 256 index |
-| `Color("#FF5733")` | True-color hex |
-| `ANSIColor(1)` | Basic ANSI 16 |
-| `AdaptiveColor{Light: "...", Dark: "..."}` | Background-adaptive |
-| `CompleteColor{TrueColor: "...", ANSI256: "...", ANSI: "..."}` | Explicit per-profile |
-| `NoColor{}` | Explicit no-color |
+- Properties use bit-flags (`propKey`). `Inherit()` only copies properties that are explicitly set on the parent — unset properties do not override.
+- String width is measured with `ansi.StringWidth`, not `len` — ANSI escape codes are zero-width and some Unicode characters are double-wide.
+- Color profiles degrade automatically: TrueColor → ANSI256 → ANSI → ASCII based on terminal capability detection.
+- `Position` is a `float64` alias: `0.0` = left/top, `0.5` = center, `1.0` = right/bottom.
+- Platform-specific behavior uses `_unix.go` / `_windows.go` file suffixes.
 
 ---
 
 ## Python Development
 
-### Setup (once pyproject.toml is added)
+### Setup
 
 ```bash
 python -m venv venv
@@ -191,52 +150,28 @@ pytest
 - **Linting**: `flake8`
 - Python 3.10+ required.
 
-### Python API Design Principles
+### Python Key Types
 
-The Python port mirrors the Go API with language-appropriate idioms:
-
-| Go | Python |
-|----|--------|
-| `lipgloss.NewStyle()` | `lipgloss.new_style()` or `lipgloss.Style()` |
-| `.Bold(true)` | `.bold(True)` |
-| `.Foreground(lipgloss.Color("#FF0000"))` | `.foreground(lipgloss.Color("#FF0000"))` |
-| `.Render("text")` | `.render("text")` |
-| `lipgloss.JoinHorizontal(pos, a, b)` | `lipgloss.join_horizontal(pos, a, b)` |
-| `lipgloss.JoinVertical(pos, a, b)` | `lipgloss.join_vertical(pos, a, b)` |
-| `lipgloss.Width(s)` | `lipgloss.width(s)` |
-| `lipgloss.Height(s)` | `lipgloss.height(s)` |
-| `lipgloss.Place(...)` | `lipgloss.place(...)` |
-
-### Python Key Types (planned)
-
-- `Style` — core class in `style.py`; implement as fluent builder returning copies
-- `Color` — string subclass or simple class wrapping a hex/ANSI value
+- `Style` — core class; fluent builder that returns copies from every setter
+- `Color` — wraps a hex string or ANSI index string
 - `AdaptiveColor` — dataclass with `light` and `dark` fields
 - `CompleteColor` — dataclass with `true_color`, `ansi256`, `ansi` fields
-- `Renderer` — class managing output and color profile detection
+- `NoColor` — sentinel for explicit no-color
+- `Renderer` — manages output writer and color profile detection
 
-### Python Color Types (planned)
+### Python Color Types
 
 ```python
 import lipgloss
 
-# ANSI 256
-lipgloss.Color("21")
-
-# True-color hex
-lipgloss.Color("#FF5733")
-
-# Adaptive (light/dark background)
-lipgloss.AdaptiveColor(light="236", dark="248")
-
-# Explicit per-profile
-lipgloss.CompleteColor(true_color="#0000FF", ansi256="86", ansi="5")
-
-# No color
-lipgloss.NoColor()
+lipgloss.Color("21")                                        # ANSI 256 index
+lipgloss.Color("#FF5733")                                   # True-color hex
+lipgloss.AdaptiveColor(light="236", dark="248")             # Background-adaptive
+lipgloss.CompleteColor(true_color="#0000FF", ansi256="86", ansi="5")  # Per-profile
+lipgloss.NoColor()                                          # Explicit no-color
 ```
 
-### Python Style Usage (planned)
+### Python Style Usage
 
 ```python
 import lipgloss
@@ -254,7 +189,7 @@ style = (
 print(style.render("Hello, kitty"))
 ```
 
-### Python Sub-package APIs (planned)
+### Python Sub-package APIs
 
 **table**:
 ```python
@@ -279,7 +214,7 @@ print(t.render())
 
 ---
 
-## Python vs Go Naming Reference
+## Go → Python Naming Reference
 
 | Go | Python |
 |----|--------|
@@ -306,31 +241,31 @@ print(t.render())
 | `Width(s)` | `width(s)` |
 | `Height(s)` | `height(s)` |
 | `Place(h, w, hPos, vPos, s)` | `place(h, w, h_pos, v_pos, s)` |
+| `AdaptiveColor{Light: ..., Dark: ...}` | `AdaptiveColor(light=..., dark=...)` |
+| `CompleteColor{TrueColor: ..., ANSI256: ..., ANSI: ...}` | `CompleteColor(true_color=..., ansi256=..., ansi=...)` |
 
 ---
 
 ## CI / GitHub Actions
 
-Workflows in `.github/workflows/` delegate to reusable workflows from `charmbracelet/meta`:
+Workflows in `.github/workflows/` currently target Go. As the Python port matures, Python CI (pytest, mypy, flake8) should be added.
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `build.yml` | push/PR | Build Go |
-| `lint.yml` | push/PR | Run golangci-lint |
-| `coverage.yml` | push/PR | Code coverage with race detector |
+| `build.yml` | push/PR | Build Go reference |
+| `lint.yml` | push/PR | Run golangci-lint on Go reference |
+| `coverage.yml` | push/PR | Go test coverage with race detector |
 | `release.yml` | tag | Release automation via GoReleaser |
 
 ---
 
 ## Important Notes for AI Assistants
 
-- **Two separate implementations exist (or will exist) side by side.** Go files are at the root; Python files will also be at the root and in sub-packages, identified by `.py` extension. They implement the same concepts with language-appropriate idioms.
-- **Go module path**: `github.com/charmbracelet/lipgloss`. Do not change this.
-- **This repo is an experiment.** The Python port is AI-generated and unvalidated. See `README.md`. Do not represent it as production-ready.
-- **The Python port is pre-alpha.** The Go source is the reference — when in doubt about intended behavior, read the Go implementation.
-- **`Style` is a value type in Go.** Python should replicate this with copy-on-write or by returning modified copies from each setter to enable fluent chaining without mutation bugs.
-- **String width is not `len()`.** Always use ANSI-aware width measurement. In Go this is `ansi.StringWidth`; in Python use a library like `wcwidth` or strip ANSI codes before measuring.
-- **Color profiles degrade automatically.** The renderer detects terminal capability (TrueColor → ANSI256 → ANSI → ASCII) and coerces colors to the best available option. The Python port must replicate this behavior.
-- **Retracted versions**: `v0.7.0` (freeze bug) and `v0.11.1` (line-wrap bug) are retracted. Do not re-introduce those version tags.
+- **Go files are reference material, not targets for modification.** Read them to understand intended behavior; write Python equivalents in `.py` files.
+- **The Go files will be removed** once the Python port reaches reasonable feature parity. Do not add new Go code.
+- **This repo is an experiment.** The Python port is AI-generated and unvalidated. Do not represent it as production-ready.
+- **`Style` must behave as an immutable builder in Python.** Every setter should return a new instance (or a copy). Silently mutating the receiver is a correctness bug.
+- **String width is not `len()`.** Use ANSI-aware measurement (e.g. the `wcwidth` package or equivalent) — ANSI escape codes are zero-width and some Unicode characters are double-wide.
+- **Color profiles degrade automatically.** The renderer detects terminal capability and coerces colors down the chain (TrueColor → ANSI256 → ANSI → ASCII). The Python port must replicate this.
+- **`Inherit()` only copies unset properties.** A property already set on the child must not be overridden by the parent. See `style.go` for the bit-flag implementation.
 - **Never log to stdout** in a running TUI program — it will corrupt the display. Always use file logging.
-- **Golden tests** in `testdata/` directories must be updated with `-update` when rendering output changes.
