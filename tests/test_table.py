@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import re
 
-import pytest
-
 import lipgloss
 from lipgloss.table import Filter, HeaderRow, StringData, Table
-from lipgloss.table.resizing import Resizer, _median
+from lipgloss.table.resizing import _median
 
 # ---------------------------------------------------------------------------
 # Helpers

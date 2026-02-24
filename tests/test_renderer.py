@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import io
-
-import pytest
-
 from lipgloss.renderer import ColorProfile, Renderer
 
 # ---------------------------------------------------------------------------

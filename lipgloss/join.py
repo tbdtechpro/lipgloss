@@ -6,8 +6,6 @@ Port of: join.go
 
 from __future__ import annotations
 
-import math
-
 from .position import Position
 from .style import _visible_width
 

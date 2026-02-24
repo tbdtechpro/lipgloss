@@ -9,8 +9,7 @@ from __future__ import annotations
 import os
 import sys
 from enum import Enum, auto
-from functools import cached_property
-from typing import IO, TYPE_CHECKING, Any
+from typing import IO, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .style import Style
