@@ -22,7 +22,7 @@ The subject of the translation is [Lip Gloss](https://github.com/charmbracelet/l
 
 ## Status
 
-Pre-alpha. The Python port is in active development. The core style system, color types, borders, layout utilities, and test suite are implemented. The table, list, and tree sub-packages are stubs. The Go source remains as the reference implementation.
+Pre-alpha. The Python port has full feature parity with the Go library for all core and sub-package features. The Go source remains as the reference implementation.
 
 | Area | Status |
 |------|--------|
@@ -32,11 +32,13 @@ Pre-alpha. The Python port is in active development. The core style system, colo
 | `join_horizontal` / `join_vertical` | ✅ Implemented |
 | `place` / `place_horizontal` / `place_vertical` | ✅ Implemented |
 | `width` / `height` / `size` | ✅ Implemented |
-| Test suite (167 tests) | ✅ Implemented |
-| `table` sub-package | 🚧 Stub |
-| `list` sub-package | 🚧 Stub |
-| `tree` sub-package | 🚧 Stub |
-| `style_runes` | 🚧 Stub |
+| `style_runes` | ✅ Implemented |
+| `table` sub-package | ✅ Implemented |
+| `list` sub-package | ✅ Implemented |
+| `tree` sub-package | ✅ Implemented |
+| Test suite (275 tests) | ✅ Implemented |
+| CI workflow (Python 3.10–3.12) | ✅ Implemented |
+| Example scripts | ✅ Implemented |
 
 ---
 
@@ -86,7 +88,7 @@ All credit for the design and architecture belongs to the [Charm](https://charm.
 
 ## Attribution
 
-Full credits — including the original Charm team and the AI tooling used in this experiment — will be documented in `ATTRIBUTION.md` (not yet written).
+Full credits — including the original Charm team and the AI tooling used in this experiment — are in [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ---
 
