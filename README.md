@@ -22,7 +22,57 @@ The subject of the translation is [Lip Gloss](https://github.com/charmbracelet/l
 
 ## Status
 
-Pre-alpha. The Python port is in early development. The Go source is the reference implementation and remains fully intact in this repository.
+Pre-alpha. The Python port is in active development. The core style system, color types, borders, layout utilities, and test suite are implemented. The table, list, and tree sub-packages are stubs. The Go source remains as the reference implementation.
+
+| Area | Status |
+|------|--------|
+| `Style` (render, all properties) | ✅ Implemented |
+| Color types (Color, ANSI, Adaptive, Complete) | ✅ Implemented |
+| Border system (all predefined borders) | ✅ Implemented |
+| `join_horizontal` / `join_vertical` | ✅ Implemented |
+| `place` / `place_horizontal` / `place_vertical` | ✅ Implemented |
+| `width` / `height` / `size` | ✅ Implemented |
+| Test suite (167 tests) | ✅ Implemented |
+| `table` sub-package | 🚧 Stub |
+| `list` sub-package | 🚧 Stub |
+| `tree` sub-package | 🚧 Stub |
+| `style_runes` | 🚧 Stub |
+
+---
+
+## Python Quick Start
+
+```bash
+pip install -e ".[dev]"
+```
+
+```python
+import lipgloss
+
+style = (
+    lipgloss.Style()
+    .bold(True)
+    .foreground(lipgloss.Color("#FAFAFA"))
+    .background(lipgloss.Color("#7D56F4"))
+    .padding_top(1)
+    .padding_left(4)
+    .width(22)
+)
+print(style.render("Hello, kitty"))
+
+# Borders
+box = lipgloss.Style().border_style(lipgloss.rounded_border()).render("Hi!")
+print(box)
+
+# Join blocks side by side
+left  = lipgloss.Style().width(10).render("Left")
+right = lipgloss.Style().width(10).render("Right")
+print(lipgloss.join_horizontal(lipgloss.Top, left, right))
+```
+
+```bash
+pytest  # run the test suite
+```
 
 ---
 
@@ -36,7 +86,7 @@ All credit for the design and architecture belongs to the [Charm](https://charm.
 
 ## Attribution
 
-See [ATTRIBUTION.md](ATTRIBUTION.md) for full credits — including the original Charm team and the AI tooling used in this experiment.
+Full credits — including the original Charm team and the AI tooling used in this experiment — will be documented in `ATTRIBUTION.md` (not yet written).
 
 ---
 

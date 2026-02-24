@@ -60,14 +60,40 @@ lipgloss/
 │   └── tree_test.go
 │
 ├── # Python translation files (live alongside Go files during development)
-├── lipgloss.py             # Public API; Style class, color helpers, join/place utilities
-├── style.py                # Style implementation
-├── color.py                # Color types
-├── borders.py              # Border definitions
-├── renderer.py             # Renderer class
-├── table/table.py          # Table sub-package
-├── list/list.py            # List sub-package
-├── tree/tree.py            # Tree sub-package
+├── lipgloss/               # Python package root
+│   ├── __init__.py         # Public API exports
+│   ├── style.py            # Style class — immutable fluent builder + render()
+│   ├── color.py            # Color, NoColor, ANSIColor, AdaptiveColor, CompleteColor
+│   ├── borders.py          # Border dataclass + all predefined border factories
+│   ├── renderer.py         # Renderer class; ColorProfile enum; color resolution
+│   ├── position.py         # Position type; place(), place_horizontal(), place_vertical()
+│   ├── join.py             # join_horizontal() / join_vertical()
+│   ├── size.py             # width(), height(), size() — ANSI-aware measurement
+│   ├── whitespace.py       # WhitespaceOption helpers for place* functions
+│   ├── runes.py            # style_runes() — stub, not yet implemented
+│   ├── table/              # Table sub-package (stub)
+│   │   ├── __init__.py
+│   │   ├── table.py
+│   │   ├── rows.py
+│   │   └── resizing.py
+│   ├── list/               # List sub-package (stub)
+│   │   ├── __init__.py
+│   │   ├── list.py
+│   │   └── enumerator.py
+│   └── tree/               # Tree sub-package (stub)
+│       ├── __init__.py
+│       ├── tree.py
+│       ├── children.py
+│       └── enumerator.py
+├── tests/                  # Python test suite (167 tests)
+│   ├── conftest.py
+│   ├── test_renderer.py
+│   ├── test_color.py
+│   ├── test_style.py
+│   ├── test_borders.py
+│   ├── test_size.py
+│   ├── test_join.py
+│   └── test_position.py
 ├── pyproject.toml          # Python packaging (requires Python 3.10+)
 │
 ├── examples/               # Go example programs (reference for Python examples)
@@ -78,6 +104,7 @@ lipgloss/
 │   └── ssh/
 │
 ├── README.md               # Project overview — describes the vibe-coding experiment
+├── MVP_TASKS.md            # Tracked task list for the Python port
 ├── Taskfile.yaml           # Task runner (Go: lint + test)
 ├── .golangci.yml           # golangci-lint v2 config
 └── .github/workflows/      # CI: build, lint, coverage, release
@@ -191,25 +218,27 @@ print(style.render("Hello, kitty"))
 
 ### Python Sub-package APIs
 
-**table**:
+> **Note:** The `table`, `list`, and `tree` sub-packages exist as stub files only — their `render()` methods raise `NotImplementedError`. They are MVP tasks 6, 7, and 8.
+
+**table** (stub):
 ```python
 from lipgloss import table
 t = table.Table().headers("Name", "Value").rows([["foo", "bar"]])
-print(t.render())
+print(t.render())  # NotImplementedError until task 6 is complete
 ```
 
-**list**:
+**list** (stub):
 ```python
 from lipgloss import list as lst
 l = lst.List("A", "B", "C").enumerator(lst.Bullet)
-print(l.render())
+print(l.render())  # NotImplementedError until task 7 is complete
 ```
 
-**tree**:
+**tree** (stub):
 ```python
 from lipgloss import tree
 t = tree.Tree().root(".").child("A", "B", "C")
-print(t.render())
+print(t.render())  # NotImplementedError until task 8 is complete
 ```
 
 ---
@@ -248,7 +277,7 @@ print(t.render())
 
 ## CI / GitHub Actions
 
-Workflows in `.github/workflows/` currently target Go. As the Python port matures, Python CI (pytest, mypy, flake8) should be added.
+Workflows in `.github/workflows/` currently target Go. A Python CI workflow (`python.yml`) is planned as MVP task 12.
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
@@ -256,6 +285,7 @@ Workflows in `.github/workflows/` currently target Go. As the Python port mature
 | `lint.yml` | push/PR | Run golangci-lint on Go reference |
 | `coverage.yml` | push/PR | Go test coverage with race detector |
 | `release.yml` | tag | Release automation via GoReleaser |
+| `python.yml` | _planned_ | pytest, mypy, black, isort, flake8 on Python 3.10–3.12 |
 
 ---
 
@@ -264,8 +294,9 @@ Workflows in `.github/workflows/` currently target Go. As the Python port mature
 - **Go files are reference material, not targets for modification.** Read them to understand intended behavior; write Python equivalents in `.py` files.
 - **The Go files will be removed** once the Python port reaches reasonable feature parity. Do not add new Go code.
 - **This repo is an experiment.** The Python port is AI-generated and unvalidated. Do not represent it as production-ready.
-- **`Style` must behave as an immutable builder in Python.** Every setter should return a new instance (or a copy). Silently mutating the receiver is a correctness bug.
-- **String width is not `len()`.** Use ANSI-aware measurement (e.g. the `wcwidth` package or equivalent) — ANSI escape codes are zero-width and some Unicode characters are double-wide.
-- **Color profiles degrade automatically.** The renderer detects terminal capability and coerces colors down the chain (TrueColor → ANSI256 → ANSI → ASCII). The Python port must replicate this.
-- **`Inherit()` only copies unset properties.** A property already set on the child must not be overridden by the parent. See `style.go` for the bit-flag implementation.
+- **`Style` must behave as an immutable builder in Python.** Every setter should return a new instance (or a copy). Silently mutating the receiver is a correctness bug. This is fully implemented.
+- **String width is not `len()`.** Use ANSI-aware measurement (e.g. the `wcwidth` package or equivalent) — ANSI escape codes are zero-width and some Unicode characters are double-wide. `lipgloss/size.py` and `_visible_width()` in `style.py` handle this.
+- **Color profiles degrade automatically.** The renderer detects terminal capability and coerces colors down the chain (TrueColor → ANSI256 → ANSI → ASCII). This is implemented in `renderer._resolve_color_string()`.
+- **`Inherit()` only copies unset properties.** A property already set on the child must not be overridden by the parent. Margins and padding are never inherited. This is implemented in `Style.inherit()` via the `_NO_INHERIT` frozenset.
 - **Never log to stdout** in a running TUI program — it will corrupt the display. Always use file logging.
+- **The test suite lives in `tests/`** and currently covers the core style system, color types, borders, size utilities, join, and placement (167 tests). Run with `pytest`.

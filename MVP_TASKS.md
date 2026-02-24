@@ -43,9 +43,8 @@ Foundation files needed before any implementation work begins.
     `place_horizontal`, `place_vertical`, `width`, `height`, `size`,
     `style_runes`, `ColorProfile`, `Renderer`, `default_renderer`,
     `set_default_renderer`, `new_renderer`, whitespace option helpers.
-  - Stub implementations added to all modules; non-rendering methods are
-    fully functional; `render()`, `join_*`, `place_*`, `style_runes` raise
-    `NotImplementedError` pending their respective MVP tasks.
+  - All core rendering is fully implemented. `style_runes` and the table/list/tree
+    sub-packages still raise `NotImplementedError` (tasks 5.5, 6, 7, 8).
   - File: `lipgloss/__init__.py`
 
 ---
@@ -54,7 +53,7 @@ Foundation files needed before any implementation work begins.
 
 The color system must be implemented before Style, because Style depends on it.
 
-- [ ] **Implement `TerminalColor` protocol and all color types**
+- [x] **Implement `TerminalColor` protocol and all color types**
   - `TerminalColor`: abstract base / Protocol with `resolve(renderer) -> str` method
     that returns the ANSI escape sequence string for a given color profile.
   - `NoColor`: sentinel for absent color; resolves to empty string / default terminal color.
@@ -70,7 +69,7 @@ The color system must be implemented before Style, because Style depends on it.
     adaptability and explicit per-profile values.
   - File: `lipgloss/color.py` (new)
 
-- [ ] **Implement `Renderer` with color profile detection**
+- [x] **Implement `Renderer` with color profile detection**
   - `ColorProfile` enum: `TrueColor`, `ANSI256`, `ANSI`, `ASCII`.
   - `Renderer` class: wraps an `io.TextIOWrapper`; detects color profile from
     `$COLORTERM`, `$TERM`, `$NO_COLOR`, `isatty()`.
@@ -88,7 +87,7 @@ The color system must be implemented before Style, because Style depends on it.
 
 The central component of the library. All other rendering features depend on `Style`.
 
-- [ ] **Implement `Style` as an immutable fluent builder**
+- [x] **Implement `Style` as an immutable fluent builder**
   - Internally stores properties in a dict keyed by property name; the set of which
     keys are present acts as the bit-flag equivalent from Go.
   - Every setter returns a new `Style` (copy with the property added/changed), never
@@ -99,7 +98,7 @@ The central component of the library. All other rendering features depend on `St
   - `Style.__str__()`: delegates to `render()` on any pre-set string (`.set_string()`).
   - File: `lipgloss/style.py` (new)
 
-- [ ] **Implement all boolean inline-formatting properties**
+- [x] **Implement all boolean inline-formatting properties**
   - `.bold(v: bool)` / `.unset_bold()`
   - `.italic(v: bool)` / `.unset_italic()`
   - `.underline(v: bool)` / `.unset_underline()`
@@ -112,32 +111,32 @@ The central component of the library. All other rendering features depend on `St
   - `.color_whitespace(v: bool)` / `.unset_color_whitespace()`
   - File: `lipgloss/style.py`
 
-- [ ] **Implement color properties**
+- [x] **Implement color properties**
   - `.foreground(c: TerminalColor)` / `.unset_foreground()`
   - `.background(c: TerminalColor)` / `.unset_background()`
   - File: `lipgloss/style.py`
 
-- [ ] **Implement dimension properties**
+- [x] **Implement dimension properties**
   - `.width(n: int)` / `.unset_width()`
   - `.height(n: int)` / `.unset_height()`
   - `.max_width(n: int)` / `.unset_max_width()`
   - `.max_height(n: int)` / `.unset_max_height()`
   - File: `lipgloss/style.py`
 
-- [ ] **Implement padding properties with CSS-shorthand overloads**
+- [x] **Implement padding properties with CSS-shorthand overloads**
   - `.padding(top, [right, [bottom, [left]]])` — 1-to-4 argument shorthand.
   - `.padding_top(n)` / `.padding_right(n)` / `.padding_bottom(n)` / `.padding_left(n)`.
   - Unsetters for all four sides.
   - File: `lipgloss/style.py`
 
-- [ ] **Implement margin properties with CSS-shorthand overloads**
+- [x] **Implement margin properties with CSS-shorthand overloads**
   - `.margin(top, [right, [bottom, [left]]])` — 1-to-4 argument shorthand.
   - `.margin_top(n)` / `.margin_right(n)` / `.margin_bottom(n)` / `.margin_left(n)`.
   - `.margin_background(c: TerminalColor)` / `.unset_margin_background()`.
   - Unsetters for all four sides.
   - File: `lipgloss/style.py`
 
-- [ ] **Implement border properties**
+- [x] **Implement border properties**
   - `.border(border, [top, right, bottom, left])` — shorthand for style + edges.
   - `.border_style(b: Border)` / `.unset_border_style()`
   - `.border_top(v: bool)` / `.border_right(v: bool)` / `.border_bottom(v: bool)` / `.border_left(v: bool)` + unsetters.
@@ -147,7 +146,7 @@ The central component of the library. All other rendering features depend on `St
   - Background colors: same pattern for `border_*_background`.
   - File: `lipgloss/style.py`
 
-- [ ] **Implement alignment, inline, tab-width, and transform properties**
+- [x] **Implement alignment, inline, tab-width, and transform properties**
   - `.align(h: Position)` — horizontal alignment.
   - `.align_horizontal(h: Position)` / `.align_vertical(v: Position)` + unsetters.
   - `.inline(v: bool)` / `.unset_inline()` — force single-line output.
@@ -156,13 +155,13 @@ The central component of the library. All other rendering features depend on `St
   - `.transform(fn: Callable[[str], str])` / `.unset_transform()`.
   - File: `lipgloss/style.py`
 
-- [ ] **Implement `Style.inherit()` and `Style.copy()`**
+- [x] **Implement `Style.inherit()` and `Style.copy()`**
   - `.inherit(parent: Style)`: copy only the properties from `parent` that are not
     already set on `self` — mirrors Go's bit-flag "unset check".
   - `.copy()`: return a new `Style` with identical properties (deep copy of internal dict).
   - File: `lipgloss/style.py`
 
-- [ ] **Implement `Style.set_string()` and getters**
+- [x] **Implement `Style.set_string()` and getters**
   - `.set_string(*strings)`: attach strings to the style so `render()` / `__str__()`
     work without arguments.
   - Getter for every settable property (e.g. `.get_bold() -> bool`,
@@ -173,13 +172,13 @@ The central component of the library. All other rendering features depend on `St
 
 ## 4. Border System
 
-- [ ] **Implement `Border` dataclass**
+- [x] **Implement `Border` dataclass**
   - Fields: `top`, `bottom`, `left`, `right`, `top_left`, `top_right`,
     `bottom_left`, `bottom_right`, `middle_left`, `middle_right`, `middle`,
     `middle_top`, `middle_bottom` — all `str`.
-  - File: `lipgloss/borders.py` (new)
+  - File: `lipgloss/borders.py`
 
-- [ ] **Implement all predefined border factories**
+- [x] **Implement all predefined border factories**
   - `normal_border()` — single-line box drawing characters.
   - `rounded_border()` — single-line with rounded corners.
   - `double_border()` — double-line box drawing characters.
@@ -187,14 +186,14 @@ The central component of the library. All other rendering features depend on `St
   - `ascii_border()` — plain ASCII `+`, `-`, `|`.
   - `markdown_border()` — pipe-and-dash style for markdown tables.
   - `hidden_border()` — space characters (preserves spacing without visible lines).
-  - Reference: `borders.go` for exact rune values.
+  - Also: `block_border()`, `outer_half_block_border()`, `inner_half_block_border()`.
   - File: `lipgloss/borders.py`
 
 ---
 
 ## 5. Layout Utilities
 
-- [ ] **Implement ANSI-aware string measurement (`size.py`)**
+- [x] **Implement ANSI-aware string measurement (`size.py`)**
   - `width(s: str) -> int`: width of the widest line, stripping ANSI codes before
     measuring with `wcwidth`.
   - `height(s: str) -> int`: number of lines (`s.count("\n") + 1`).
@@ -203,7 +202,7 @@ The central component of the library. All other rendering features depend on `St
     returns lines and max width — used by join/place.
   - File: `lipgloss/size.py` (new)
 
-- [ ] **Implement `join_horizontal` and `join_vertical`**
+- [x] **Implement `join_horizontal` and `join_vertical`**
   - `join_horizontal(pos: Position, *strs: str) -> str`: join blocks side-by-side,
     padding shorter blocks to the height of the tallest at `pos`.
   - `join_vertical(pos: Position, *strs: str) -> str`: stack blocks, padding narrower
@@ -211,7 +210,7 @@ The central component of the library. All other rendering features depend on `St
   - Reference: `join.go` for padding/alignment logic.
   - File: `lipgloss/join.py` (new)
 
-- [ ] **Implement `Position` constants and `place` functions**
+- [x] **Implement `Position` constants and `place` functions**
   - `Position = float` (type alias or `NewType`).
   - Constants: `Top = 0.0`, `Bottom = 1.0`, `Left = 0.0`, `Right = 1.0`,
     `Center = 0.5`.
@@ -220,7 +219,7 @@ The central component of the library. All other rendering features depend on `St
   - `place_vertical(height, pos, s, **whitespace_opts) -> str`.
   - File: `lipgloss/position.py` (new)
 
-- [ ] **Implement `WhitespaceOption` and styled whitespace rendering**
+- [x] **Implement `WhitespaceOption` and styled whitespace rendering**
   - `whitespace_foreground(c: TerminalColor) -> WhitespaceOption`.
   - `whitespace_background(c: TerminalColor) -> WhitespaceOption`.
   - `whitespace_chars(s: str) -> WhitespaceOption`.
@@ -326,45 +325,49 @@ The central component of the library. All other rendering features depend on `St
 
 ## 9. Test Suite
 
-- [ ] **Create `tests/` directory with `conftest.py` and shared fixtures**
-  - Fixtures: `default_style()`, `ascii_renderer()` (forces ASCII profile to strip
-    colors, making snapshot assertions terminal-independent).
-  - File: `tests/conftest.py` (new)
+- [x] **Create `tests/` directory with `conftest.py` and shared fixtures**
+  - Fixtures: `truecolor_renderer()`, `ansi256_renderer()`, `ansi_renderer()`,
+    `ascii_renderer()`, `style()` (bound to TrueColor renderer).
+  - File: `tests/conftest.py`
 
-- [ ] **Write unit tests for the color system**
+- [x] **Write unit tests for the color system**
   - `Color`, `ANSIColor`, `AdaptiveColor`, `CompleteColor`, `CompleteAdaptiveColor`,
     `NoColor` each resolve to the expected ANSI string under TrueColor, ANSI256, ANSI,
     and ASCII profiles.
   - Adaptive variants choose the correct branch based on `has_dark_background()`.
-  - File: `tests/test_color.py` (new)
+  - Also covers `Renderer` color profile detection and `_resolve_color_string()`.
+  - Files: `tests/test_color.py`, `tests/test_renderer.py`
 
-- [ ] **Write unit tests for `Style` core rendering**
+- [x] **Write unit tests for `Style` core rendering**
   - Bold, italic, underline, strikethrough, reverse, blink, faint.
   - Foreground and background colors.
   - Padding: all four sides, CSS shorthands (1-, 2-, 3-, 4-arg).
-  - Margin: all four sides, CSS shorthands, margin background.
-  - Width / height expansion and truncation.
+  - Margin: all four sides, CSS shorthands.
+  - Width / height expansion; alignment (left, right, center, horizontal and vertical).
   - MaxWidth / MaxHeight enforcement.
-  - Borders: all six predefined styles, edge selection, foreground/background colors.
-  - Alignment: left, right, center (horizontal and vertical).
-  - Tab width: default (4), custom, 0 (remove), NoTabConversion.
-  - Inline mode: collapses to single line, ignores padding/margin/borders.
-  - Transform: applied after rendering.
-  - File: `tests/test_style.py` (new)
+  - Borders: all predefined styles, edge selection, foreground/background colors.
+    Covered in dedicated `tests/test_borders.py`.
+  - Tab width: default (4), custom, 0 (remove), `-1` (preserve).
+  - Inline mode: collapses to single line.
+  - Transform: applied to string.
+  - File: `tests/test_style.py`
 
-- [ ] **Write unit tests for `Style.inherit()` and `Style.copy()`**
+- [x] **Write unit tests for `Style.inherit()` and `Style.copy()`**
   - Properties already set on child are not overridden by parent.
-  - Properties unset on child are filled from parent.
+  - Margins and padding are never inherited (matches Go behaviour).
   - Copy is independent (mutating copy does not affect original).
   - File: `tests/test_style.py`
 
-- [ ] **Write unit tests for layout utilities**
+- [x] **Write unit tests for layout utilities**
   - `width()` / `height()` / `size()`: plain strings, multi-line, ANSI-escaped.
-  - `join_horizontal()`: equal-height blocks, position variants (top/center/bottom/0.2).
-  - `join_vertical()`: equal-width blocks, position variants (left/center/right/0.2).
-  - `place()` / `place_horizontal()` / `place_vertical()`: placement, whitespace fill,
-    styled whitespace options.
-  - File: `tests/test_layout.py` (new)
+    File: `tests/test_size.py`
+  - `join_horizontal()`: equal-height blocks, top/center/bottom positioning, width padding.
+    File: `tests/test_join.py`
+  - `join_vertical()`: equal-width blocks, left/center/right positioning.
+    File: `tests/test_join.py`
+  - `place()` / `place_horizontal()` / `place_vertical()`: all positions, no-op when
+    content already fits, dimension preservation.
+    File: `tests/test_position.py`
 
 - [ ] **Write unit tests for the table sub-package**
   - Basic rendering with headers and rows.
