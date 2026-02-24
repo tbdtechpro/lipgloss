@@ -4,9 +4,14 @@ from __future__ import annotations
 
 import lipgloss
 from lipgloss.color import Color, TerminalColor
-from lipgloss.themes import CatppuccinMochaTheme, DraculaTheme, GleamTheme
-from lipgloss.themes import catppuccin_mocha, dracula, gleam
-
+from lipgloss.themes import (
+    CatppuccinMochaTheme,
+    DraculaTheme,
+    GleamTheme,
+    catppuccin_mocha,
+    dracula,
+    gleam,
+)
 
 # ---------------------------------------------------------------------------
 # Module-level access via lipgloss.themes
@@ -45,7 +50,9 @@ def test_catppuccin_mocha_all_colors_satisfy_protocol() -> None:
 
     for field in dataclasses.fields(catppuccin_mocha):
         value = getattr(catppuccin_mocha, field.name)
-        assert isinstance(value, TerminalColor), f"field {field.name!r} does not satisfy TerminalColor"
+        assert isinstance(
+            value, TerminalColor
+        ), f"field {field.name!r} does not satisfy TerminalColor"
 
 
 def test_catppuccin_mocha_spot_check() -> None:
@@ -57,8 +64,6 @@ def test_catppuccin_mocha_spot_check() -> None:
 
 
 def test_catppuccin_mocha_is_frozen() -> None:
-    import dataclasses
-
     assert catppuccin_mocha.__dataclass_params__.frozen  # type: ignore[attr-defined]
 
 
@@ -159,6 +164,6 @@ def test_theme_color_is_valid_hex() -> None:
         for field in dataclasses.fields(theme):  # type: ignore[arg-type]
             value = getattr(theme, field.name)
             if isinstance(value, Color):
-                assert hex_re.match(str(value).lower()), (
-                    f"{type(theme).__name__}.{field.name} = {value!r} is not a valid #rrggbb hex"
-                )
+                assert hex_re.match(
+                    str(value).lower()
+                ), f"{type(theme).__name__}.{field.name} = {value!r} is not a valid #rrggbb hex"
