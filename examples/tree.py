@@ -5,7 +5,6 @@ Run with:  python examples/tree.py
 """
 
 import os
-import sys
 
 import lipgloss
 from lipgloss import tree as tr

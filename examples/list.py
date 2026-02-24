@@ -50,8 +50,6 @@ ALL_ITEMS = [
 
 
 def grocery_enumerator(items: lst.Items, i: int) -> str:
-    # The rendered item text includes styling so strip ANSI for the lookup.
-    raw = items.at(i)
     # Match against the original names list by index.
     name = ALL_ITEMS[i] if i < len(ALL_ITEMS) else ""
     if name in PURCHASED:
@@ -66,8 +64,8 @@ def main() -> None:
         for name in ALL_ITEMS
     ]
 
-    l = lst.List(*styled_items).enumerator(grocery_enumerator)
-    print(l.render())
+    li = lst.List(*styled_items).enumerator(grocery_enumerator)
+    print(li.render())
 
 
 if __name__ == "__main__":
