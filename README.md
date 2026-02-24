@@ -1,4 +1,58 @@
-# Lip Gloss
+# lipgloss — Python port (experiment)
+
+This repository is an experiment to explore how feasible it is to translate a non-trivial Go library into idiomatic Python using AI-assisted ("vibe coded") development with minimal direct human authorship of the code itself.
+
+The subject of the translation is [Lip Gloss](https://github.com/charmbracelet/lipgloss), a terminal styling library by [Charm](https://charm.sh) that provides a CSS-like declarative API for building styled TUI output.
+
+---
+
+## What this is
+
+- A research experiment, not a production library.
+- The Python code, commit history, and documentation in this repo are primarily AI-generated. They do not represent the engineering efforts of the human running the experiment.
+- The human's contribution is the experimental design, direction, review, and judgement calls — not the code itself.
+
+## What this is not
+
+- A maintained or supported library.
+- A replacement for or competitor to the original [Go Lip Gloss](https://github.com/charmbracelet/lipgloss).
+- Validated software. No assumptions should be made about correctness, completeness, or fitness for any purpose until independent validation has been done.
+
+---
+
+## Status
+
+Pre-alpha. The Python port is in early development. The Go source is the reference implementation and remains fully intact in this repository.
+
+---
+
+## Original library
+
+All credit for the design and architecture belongs to the [Charm](https://charm.sh) team.
+
+> [github.com/charmbracelet/lipgloss](https://github.com/charmbracelet/lipgloss)
+
+---
+
+## Attribution
+
+See [ATTRIBUTION.md](ATTRIBUTION.md) for full credits — including the original Charm team and the AI tooling used in this experiment.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+## Original Go README
+
+The original Go library documentation follows below.
+
+---
+
+# Lip Gloss (Go)
 
 <p>
     <picture>

@@ -1,178 +1,336 @@
 # CLAUDE.md
 
-This file provides guidance to AI assistants working with the lipgloss codebase.
+This file provides guidance for AI assistants working in this repository.
 
-## Project Overview
+## Repository Overview
 
-Lipgloss is a Go library for declarative terminal styling. It provides a CSS-like API for building styled TUI (terminal user interface) output. It is part of the [Charm](https://charm.sh) ecosystem and is commonly used with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
+This repository contains two parallel implementations of the **Lip Gloss** terminal styling library:
 
-Module path: `github.com/charmbracelet/lipgloss`
-Go version: 1.24+
+1. **Go library** (`github.com/charmbracelet/lipgloss`) — the original, battle-tested implementation, production-ready.
+2. **Python port** — a Python port of the Go library, mirroring the API in an idiomatic Python style (pre-alpha, in development).
+
+Lip Gloss provides a CSS-like declarative API for composing styled terminal output. Users describe styles with chained method calls (colors, padding, borders, alignment) and call `render()` / `Render()` to produce ANSI-escaped strings.
+
+---
 
 ## Repository Structure
 
 ```
 lipgloss/
-├── *.go                  # Core styling library (root package)
-├── table/                # Table rendering sub-package
-├── list/                 # List rendering sub-package
-├── tree/                 # Tree rendering sub-package
-├── examples/             # Runnable example programs
+├── # Go source files (root package `lipgloss`)
+├── style.go                # Core Style struct; propKey bit-flag property system
+├── set.go                  # All property setters (return Style by value)
+├── get.go                  # All property getters
+├── unset.go                # Property unsetters
+├── renderer.go             # Renderer struct; terminal color profile detection
+├── color.go                # TerminalColor interface; Color, NoColor, ANSIColor, AdaptiveColor, CompleteColor
+├── borders.go              # Border style definitions (Normal, Rounded, Double, Thick, ASCII, Markdown)
+├── join.go                 # JoinHorizontal / JoinVertical for composing styled blocks
+├── position.go             # Position type; Place, PlaceHorizontal, PlaceVertical
+├── align.go                # Horizontal and vertical text alignment helpers
+├── whitespace.go           # Whitespace rendering with optional styling
+├── runes.go                # StyleRunes for per-rune styling
+├── size.go                 # Width / Height measurement utilities
+├── ranges.go               # Range manipulation utilities
+├── ansi_unix.go            # Unix ANSI handling
+├── ansi_windows.go         # Windows ANSI handling
+├── go.mod                  # Go module: github.com/charmbracelet/lipgloss, go 1.24
+├── go.sum
+│
+├── table/                  # Table rendering sub-package
+│   ├── table.go
+│   ├── rows.go
+│   ├── resizing.go
+│   └── table_test.go
+│
+├── list/                   # List rendering sub-package
+│   ├── list.go
+│   ├── enumerator.go
+│   └── list_test.go
+│
+├── tree/                   # Tree rendering sub-package
+│   ├── tree.go
+│   ├── children.go
+│   ├── enumerator.go
+│   ├── renderer.go
+│   └── tree_test.go
+│
+├── # Python port files (to be added alongside Go files)
+├── lipgloss.py             # (planned) Public API; Style class, color helpers, join/place utilities
+├── style.py                # (planned) Style implementation
+├── color.py                # (planned) Color types
+├── borders.py              # (planned) Border definitions
+├── renderer.py             # (planned) Renderer class
+├── table/table.py          # (planned) Table sub-package
+├── list/list.py            # (planned) List sub-package
+├── tree/tree.py            # (planned) Tree sub-package
+├── pyproject.toml          # (planned) Python packaging (requires Python 3.10+)
+│
+├── examples/               # Example programs
 │   ├── layout/
 │   ├── list/
 │   ├── table/
 │   ├── tree/
 │   └── ssh/
-├── .github/workflows/    # CI: build, lint, coverage, release
-├── Taskfile.yaml         # Task runner commands
-├── .golangci.yml         # Linter configuration
-└── .goreleaser.yml       # Release configuration
+│
+├── README.md               # Project overview — describes the vibe-coding experiment
+├── Taskfile.yaml           # Task runner (Go: lint + test)
+├── .golangci.yml           # golangci-lint v2 config
+└── .github/workflows/      # CI: build, lint, coverage, release
 ```
 
-### Root Package Files
+---
 
-| File | Purpose |
-|------|---------|
-| `style.go` | Core `Style` struct; `propKey` bit-flag property system |
-| `set.go` | All property setters (return `Style` by value) |
-| `get.go` | All property getters |
-| `unset.go` | Property unsetters |
-| `renderer.go` | `Renderer` struct; terminal color profile detection |
-| `color.go` | `TerminalColor` interface; `Color`, `NoColor`, `ANSIColor`, `AdaptiveColor`, `CompleteColor` |
-| `borders.go` | Border style definitions (Normal, Rounded, Double, Thick, ASCII, Markdown) |
-| `join.go` | `JoinHorizontal` / `JoinVertical` for composing styled blocks |
-| `position.go` | `Position` type; `Place`, `PlaceHorizontal`, `PlaceVertical` |
-| `align.go` | Horizontal and vertical text alignment helpers |
-| `whitespace.go` | Whitespace rendering with optional styling |
-| `runes.go` | `StyleRunes` for per-rune styling |
-| `size.go` | `Width` / `Height` measurement utilities |
-| `ranges.go` | Range manipulation utilities |
-| `ansi_unix.go` / `ansi_windows.go` | Platform-specific ANSI handling |
+## Core Concept
 
-## Development Commands
+Lip Gloss is a **style-and-render** library. A `Style` holds declarative properties (colors, padding, margins, borders, alignment, width, height). Calling `Render(text)` applies those properties and returns an ANSI-escaped string ready to print.
+
+```
+NewStyle() → set properties → Render(text) → ANSI string
+```
+
+Styles are **immutable value types** in Go: each setter returns a new `Style`. The Python port should replicate this — either via true immutability or by returning `self` after copy to enable fluent chaining.
+
+---
+
+## Go Development
+
+### Running Tests
 
 ```bash
-# Run all tests
 go test ./...
-
-# Run tests with race detector (mirrors CI)
+# with race detector (mirrors CI)
 go test -race ./...
-
-# Run only table tests
+# table tests only
 go test ./table
+```
 
-# Via task runner
+Or via Task:
+
+```bash
 task test
 task test:table
+```
+
+### Updating Golden Files
+
+Snapshot/golden tests live in `testdata/` directories. Update them with:
+
+```bash
+go test ./... -update
+```
+
+### Running the Linter
+
+```bash
 task lint
+# equivalent to:
+golangci-lint run
 ```
 
-The project uses [Task](https://taskfile.dev) (`Taskfile.yaml`) as its task runner. Direct `go` commands work equally well.
+### Linter Configuration (`.golangci.yml`)
 
-## Testing
+- **Version**: golangci-lint v2
+- **Formatters**: `gofumpt`, `goimports` (use these, not plain `gofmt`)
+- **Enabled linters**: `bodyclose`, `exhaustive`, `goconst`, `godot`, `gosec`, `misspell`, `nestif`, `nilerr`, `revive`, `unconvert`, `unparam`, `whitespace`, `wrapcheck`, and others
+- Tests are excluded from linting (`run.tests: false`)
 
-- Test files live alongside source files (`*_test.go`).
-- Golden/snapshot tests use `testdata/` directories within each package. Update golden files with:
-  ```bash
-  go test ./... -update
-  ```
-- CI runs tests with `-race -covermode atomic`. Always verify race-safety for concurrent code.
-- `table/table_test.go` is very large (~64k lines) — it contains comprehensive rendering snapshots.
-- The `tree` package also has `example_test.go` with runnable `Example*` functions.
+### Key Go Conventions
 
-## Code Conventions
+- All exported types, functions, and variables must have godoc comments ending in a period (enforced by `godot`).
+- `Style` is a **value type** — all setters return a new `Style`. Never mutate in place.
+- Properties are stored as bit-flags (`propKey`). `Inherit()` only copies properties that are explicitly set on the parent.
+- Use `ansi.StringWidth` (not `len` or `utf8.RuneCountInString`) when measuring visible terminal width.
+- Platform-specific code uses `_unix.go` / `_windows.go` suffixes.
+- Wrap errors rather than returning them bare (`wrapcheck`).
 
-### Style is Immutable / Value Type
+### Key Go Types
 
-`Style` is a struct passed by value. Every setter returns a new `Style`. Never mutate a style in place:
+| Type | Description |
+|------|-------------|
+| `Style` | Core styling struct; value type, immutable setters |
+| `Renderer` | Terminal output handler; detects color profile via `termenv` |
+| `TerminalColor` | Interface satisfied by `Color`, `NoColor`, `ANSIColor`, `AdaptiveColor`, `CompleteColor` |
+| `Border` | Struct of rune strings defining border characters |
+| `Position` | Float alias for alignment (0.0 = left/top, 0.5 = center, 1.0 = right/bottom) |
 
-```go
-// Correct: each call returns a new style
-s := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FF0000"))
+### Go Color Types
 
-// Correct: re-assign to apply more settings
-s = s.Padding(1, 2)
-```
-
-### Property System
-
-Properties are stored as bit-flags (`propKey`) on the `props int64` field, with actual values in a separate `vals` map. This lets `Inherit()` apply only the properties that have been explicitly set on the parent style:
-
-```go
-// Only bold propagates; foreground does not because it's unset in parent
-child := lipgloss.NewStyle().Inherit(parent)
-```
-
-### Color Types
-
-Use the most appropriate color type:
-
-| Type | Use case |
-|------|----------|
+| Type | Usage |
+|------|-------|
 | `Color("21")` | ANSI 256 index |
 | `Color("#FF5733")` | True-color hex |
-| `ANSIColor(1)` | Basic ANSI 16 colors |
-| `AdaptiveColor{Light: "...", Dark: "..."}` | Different values based on terminal background |
-| `CompleteColor{TrueColor: "...", ANSI256: "...", ANSI: "..."}` | Explicit per-profile values |
+| `ANSIColor(1)` | Basic ANSI 16 |
+| `AdaptiveColor{Light: "...", Dark: "..."}` | Background-adaptive |
+| `CompleteColor{TrueColor: "...", ANSI256: "...", ANSI: "..."}` | Explicit per-profile |
 | `NoColor{}` | Explicit no-color |
 
-Colors are rendered via the `Renderer`'s color profile, which automatically degrades (TrueColor → ANSI256 → ANSI → ASCII) based on terminal capabilities.
+---
 
-### Renderer
+## Python Development
 
-The global renderer (`lipgloss.DefaultRenderer()`) is used by default. Create a custom renderer when writing to a specific `io.Writer` (e.g., for SSH sessions or testing):
+### Setup (once pyproject.toml is added)
 
-```go
-r := lipgloss.NewRenderer(w)
-style := r.NewStyle().Bold(true)
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -e ".[dev]"
 ```
 
-The `Renderer` uses `sync.Once` for lazy color profile detection and `sync.RWMutex` for thread safety.
+### Running Tests
 
-### Formatting Conventions
+```bash
+pytest
+```
 
-- **Formatter**: `gofumpt` + `goimports` (stricter than standard `gofmt`)
-- **Linter**: `golangci-lint` with the config in `.golangci.yml`
-- All exported types and functions must have doc comments ending with a period (`godot` linter enforced).
-- Do not use naked returns (`nakedret`).
-- Wrap errors rather than returning them bare (`wrapcheck`).
-- Avoid magic numbers; use named constants.
-- Avoid deeply nested `if` blocks (`nestif`).
+### Code Style
 
-### Sub-package Patterns
+- **Formatter**: `black` (line length 100)
+- **Import sorting**: `isort` (black profile)
+- **Type checking**: `mypy` (strict, `disallow_untyped_defs = true`)
+- **Linting**: `flake8`
+- Python 3.10+ required.
 
-**table**: Constructed via `table.New()`, configured with method chaining. `StyleFunc` is used for per-cell styling. Column widths are computed by the `resizing.go` algorithm.
+### Python API Design Principles
 
-**list**: Constructed via `list.New()`. Supports custom `Enumerator` functions (signature: `func(items Items, index int) string`). Nesting is done by adding a `*list.List` as an item.
+The Python port mirrors the Go API with language-appropriate idioms:
 
-**tree**: Node-based. `tree.New()` builds a root; `.Child(...)` accepts strings (leaves) or `*tree.Tree` (branches). Custom `Enumerator` signature: `func(children Children, index int) string`.
+| Go | Python |
+|----|--------|
+| `lipgloss.NewStyle()` | `lipgloss.new_style()` or `lipgloss.Style()` |
+| `.Bold(true)` | `.bold(True)` |
+| `.Foreground(lipgloss.Color("#FF0000"))` | `.foreground(lipgloss.Color("#FF0000"))` |
+| `.Render("text")` | `.render("text")` |
+| `lipgloss.JoinHorizontal(pos, a, b)` | `lipgloss.join_horizontal(pos, a, b)` |
+| `lipgloss.JoinVertical(pos, a, b)` | `lipgloss.join_vertical(pos, a, b)` |
+| `lipgloss.Width(s)` | `lipgloss.width(s)` |
+| `lipgloss.Height(s)` | `lipgloss.height(s)` |
+| `lipgloss.Place(...)` | `lipgloss.place(...)` |
 
-## Key Dependencies
+### Python Key Types (planned)
 
-| Module | Purpose |
-|--------|---------|
-| `github.com/charmbracelet/x/ansi` | ANSI escape code parsing and string-width measurement |
-| `github.com/charmbracelet/x/cellbuf` | Cell-based terminal buffer for layout |
-| `github.com/muesli/termenv` | Terminal color profiles and output |
-| `github.com/rivo/uniseg` | Unicode grapheme cluster segmentation |
-| `github.com/aymanbagabas/go-udiff` | Diff output in tests |
-| `github.com/charmbracelet/x/exp/golden` | Golden file test helpers |
+- `Style` — core class in `style.py`; implement as fluent builder returning copies
+- `Color` — string subclass or simple class wrapping a hex/ANSI value
+- `AdaptiveColor` — dataclass with `light` and `dark` fields
+- `CompleteColor` — dataclass with `true_color`, `ansi256`, `ansi` fields
+- `Renderer` — class managing output and color profile detection
 
-## CI/CD
+### Python Color Types (planned)
 
-GitHub Actions workflows live in `.github/workflows/`:
+```python
+import lipgloss
 
-- **build.yml**: Builds on push to `master` and on PRs.
-- **coverage.yml**: Runs `go test -race -covermode atomic ./...` and reports to Coveralls.
-- **lint.yml**: Runs `golangci-lint`.
-- **release.yml**: Handles tagged releases via GoReleaser.
+# ANSI 256
+lipgloss.Color("21")
 
-The project retracts `v0.7.0` (app freeze bug) and `v0.11.1` (line-wrap bug). Do not re-introduce those version tags.
+# True-color hex
+lipgloss.Color("#FF5733")
 
-## Common Pitfalls
+# Adaptive (light/dark background)
+lipgloss.AdaptiveColor(light="236", dark="248")
 
-- **Platform differences**: ANSI handling differs between Unix (`ansi_unix.go`) and Windows (`ansi_windows.go`). Test on both if changing escape code logic.
-- **String width**: Always use `ansi.StringWidth` (or the cellbuf equivalent) — not `len()` or `utf8.RuneCountInString()` — when measuring visible terminal width, because ANSI escape codes are zero-width and some Unicode characters are double-wide.
-- **Style inheritance**: `Inherit()` only copies *unset* properties from the parent. If a property is already set on the child, it will not be overridden.
-- **Immutability**: Because `Style` is a value type, forgetting to re-assign the result of a setter is a silent bug.
-- **Golden test updates**: Rendering output changes require updating golden files. Run with `-update` flag.
+# Explicit per-profile
+lipgloss.CompleteColor(true_color="#0000FF", ansi256="86", ansi="5")
+
+# No color
+lipgloss.NoColor()
+```
+
+### Python Style Usage (planned)
+
+```python
+import lipgloss
+
+style = (
+    lipgloss.Style()
+    .bold(True)
+    .foreground(lipgloss.Color("#FAFAFA"))
+    .background(lipgloss.Color("#7D56F4"))
+    .padding_top(2)
+    .padding_left(4)
+    .width(22)
+)
+
+print(style.render("Hello, kitty"))
+```
+
+### Python Sub-package APIs (planned)
+
+**table**:
+```python
+from lipgloss import table
+t = table.Table().headers("Name", "Value").rows([["foo", "bar"]])
+print(t.render())
+```
+
+**list**:
+```python
+from lipgloss import list as lst
+l = lst.List("A", "B", "C").enumerator(lst.Bullet)
+print(l.render())
+```
+
+**tree**:
+```python
+from lipgloss import tree
+t = tree.Tree().root(".").child("A", "B", "C")
+print(t.render())
+```
+
+---
+
+## Python vs Go Naming Reference
+
+| Go | Python |
+|----|--------|
+| `NewStyle()` | `Style()` |
+| `.Bold(true)` | `.bold(True)` |
+| `.Foreground(c)` | `.foreground(c)` |
+| `.Background(c)` | `.background(c)` |
+| `.Padding(n)` | `.padding(n)` |
+| `.PaddingTop(n)` | `.padding_top(n)` |
+| `.MarginLeft(n)` | `.margin_left(n)` |
+| `.BorderStyle(b)` | `.border_style(b)` |
+| `.BorderForeground(c)` | `.border_foreground(c)` |
+| `.Align(pos)` | `.align(pos)` |
+| `.Width(n)` | `.width(n)` |
+| `.Height(n)` | `.height(n)` |
+| `.MaxWidth(n)` | `.max_width(n)` |
+| `.Inline(true)` | `.inline(True)` |
+| `.Inherit(s)` | `.inherit(s)` |
+| `.Render("text")` | `.render("text")` |
+| `NormalBorder()` | `normal_border()` |
+| `RoundedBorder()` | `rounded_border()` |
+| `JoinHorizontal(pos, ...)` | `join_horizontal(pos, ...)` |
+| `JoinVertical(pos, ...)` | `join_vertical(pos, ...)` |
+| `Width(s)` | `width(s)` |
+| `Height(s)` | `height(s)` |
+| `Place(h, w, hPos, vPos, s)` | `place(h, w, h_pos, v_pos, s)` |
+
+---
+
+## CI / GitHub Actions
+
+Workflows in `.github/workflows/` delegate to reusable workflows from `charmbracelet/meta`:
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `build.yml` | push/PR | Build Go |
+| `lint.yml` | push/PR | Run golangci-lint |
+| `coverage.yml` | push/PR | Code coverage with race detector |
+| `release.yml` | tag | Release automation via GoReleaser |
+
+---
+
+## Important Notes for AI Assistants
+
+- **Two separate implementations exist (or will exist) side by side.** Go files are at the root; Python files will also be at the root and in sub-packages, identified by `.py` extension. They implement the same concepts with language-appropriate idioms.
+- **Go module path**: `github.com/charmbracelet/lipgloss`. Do not change this.
+- **This repo is an experiment.** The Python port is AI-generated and unvalidated. See `README.md`. Do not represent it as production-ready.
+- **The Python port is pre-alpha.** The Go source is the reference — when in doubt about intended behavior, read the Go implementation.
+- **`Style` is a value type in Go.** Python should replicate this with copy-on-write or by returning modified copies from each setter to enable fluent chaining without mutation bugs.
+- **String width is not `len()`.** Always use ANSI-aware width measurement. In Go this is `ansi.StringWidth`; in Python use a library like `wcwidth` or strip ANSI codes before measuring.
+- **Color profiles degrade automatically.** The renderer detects terminal capability (TrueColor → ANSI256 → ANSI → ASCII) and coerces colors to the best available option. The Python port must replicate this behavior.
+- **Retracted versions**: `v0.7.0` (freeze bug) and `v0.11.1` (line-wrap bug) are retracted. Do not re-introduce those version tags.
+- **Never log to stdout** in a running TUI program — it will corrupt the display. Always use file logging.
+- **Golden tests** in `testdata/` directories must be updated with `-update` when rendering output changes.
