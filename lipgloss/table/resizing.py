@@ -14,23 +14,20 @@ Internal function used by Table.render(); not part of the public API.
 from __future__ import annotations
 
 import math
-import re
-import unicodedata
 
-_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mK]")
+from .._ansi import strip_ansi as _strip_ansi
 
 
 def _visible_width(s: str) -> int:
     """Return the visible terminal width of *s*, stripping ANSI escapes."""
-    s = _ANSI_RE.sub("", s)
-    w = 0
-    for ch in s:
-        eaw = unicodedata.east_asian_width(ch)
-        if eaw in ("W", "F"):
-            w += 2
-        else:
-            w += 1
-    return w
+    plain = _strip_ansi(s)
+    try:
+        from wcwidth import wcswidth  # type: ignore[import]
+
+        w = wcswidth(plain)
+        return w if w >= 0 else len(plain)
+    except ImportError:
+        return len(plain)
 
 
 def _median(values: list[int]) -> int:

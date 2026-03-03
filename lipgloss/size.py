@@ -6,15 +6,7 @@ Port of: size.go
 
 from __future__ import annotations
 
-import re
-
-# Regex that matches ANSI escape sequences (CSI, OSC, and simple escapes).
-_ANSI_ESCAPE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-
-
-def _strip_ansi(s: str) -> str:
-    """Remove all ANSI escape sequences from *s*."""
-    return _ANSI_ESCAPE.sub("", s)
+from ._ansi import strip_ansi as _strip_ansi
 
 
 def _visible_width(line: str) -> int:
