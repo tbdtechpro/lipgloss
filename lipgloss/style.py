@@ -608,7 +608,29 @@ class Style:
     # ------------------------------------------------------------------
 
     def width(self, n: int) -> "Style":
-        """Set minimum width."""
+        """Set the minimum column width of the rendered output.
+
+        Content shorter than *n* columns is padded to reach *n*.  Content
+        longer than *n* columns is **word-wrapped** so that it fits — this is
+        intentional layout behaviour, not truncation.
+
+        .. warning::
+            If you need a hard single-line limit (no wrapping), use
+            :meth:`max_width` instead.  ``max_width`` truncates rather than
+            wraps, keeping the output to exactly one terminal row.
+
+        Padding interaction
+        -------------------
+        The word-wrap threshold is ``n - pad_left - pad_right``, *not* ``n``.
+        With ``.width(80).padding(0, 1)`` content wraps at column 78 because
+        the 1-column padding on each side eats into the inner content budget::
+
+            # Wraps at 78 chars, not 80:
+            Style().width(80).padding(0, 1).render(text)
+
+            # To fill 80 cols with 1-col side padding, content must be <= 78:
+            Style().width(80).padding(0, 1).render(text[:78])
+        """
         return self._set("width", n)
 
     def get_width(self) -> int:
@@ -652,7 +674,21 @@ class Style:
     # ------------------------------------------------------------------
 
     def padding(self, *values: int) -> "Style":
-        """Set padding using CSS shorthand (1–4 values)."""
+        """Set padding using CSS shorthand (1–4 values).
+
+        Follows the CSS shorthand convention:
+
+        * 1 value  → all sides
+        * 2 values → top/bottom, left/right
+        * 3 values → top, left/right, bottom
+        * 4 values → top, right, bottom, left
+
+        Width interaction
+        -----------------
+        When :meth:`width` is also set, word-wrapping occurs at
+        ``width - pad_left - pad_right``, not at ``width``.  See
+        :meth:`width` for a full explanation and examples.
+        """
         top, right, bottom, left = _expand_sides(*values)
         return (
             self._set("padding_top", top)

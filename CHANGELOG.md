@@ -9,6 +9,20 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- `visible_width(s: str) -> int` and `strip_ansi(s: str) -> str` are now part of
+  the public API, importable directly from `lipgloss`. Previously these were
+  private helpers (`_visible_width`, `_strip_ansi`) inside `style.py`. App
+  developers who need ANSI-aware string measurement can now rely on them as a
+  stable surface.
+
+### Changed
+- `.width()` docstring now documents the word-wrap behaviour, the distinction
+  from `.max_width()`, and the padding interaction (wrap threshold is
+  `width − pad_left − pad_right`).
+- `.padding()` docstring now includes a "Width interaction" section cross-
+  referencing `.width()` and explaining the reduced inner wrap budget.
+
 ### Planned
 - Task 10: Bubble Tea integration tests and examples
 - Ongoing test coverage improvements

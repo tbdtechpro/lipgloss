@@ -74,7 +74,7 @@ from .runes import style_runes
 from .size import height, size, width
 
 # Style
-from .style import Style, new_style
+from .style import Style, new_style, _visible_width as visible_width, _strip_ansi as strip_ansi
 
 # Themes
 from . import themes
@@ -138,6 +138,9 @@ __all__ = [
     "width",
     "height",
     "size",
+    # ANSI-aware string utilities
+    "visible_width",
+    "strip_ansi",
     # Per-rune styling
     "style_runes",
     # Renderer

@@ -295,7 +295,7 @@ Workflows in `.github/workflows/` currently target Go. A Python CI workflow (`py
 - **The Go files will be removed** once the Python port reaches reasonable feature parity. Do not add new Go code.
 - **This repo is an experiment.** The Python port is AI-generated and unvalidated. Do not represent it as production-ready.
 - **`Style` must behave as an immutable builder in Python.** Every setter should return a new instance (or a copy). Silently mutating the receiver is a correctness bug. This is fully implemented.
-- **String width is not `len()`.** Use ANSI-aware measurement (e.g. the `wcwidth` package or equivalent) — ANSI escape codes are zero-width and some Unicode characters are double-wide. `lipgloss/size.py` and `_visible_width()` in `style.py` handle this.
+- **String width is not `len()`.** Use ANSI-aware measurement (e.g. the `wcwidth` package or equivalent) — ANSI escape codes are zero-width and some Unicode characters are double-wide. `lipgloss/size.py` handles block-level measurement; `visible_width()` and `strip_ansi()` are public helpers exported from `lipgloss/__init__.py` for use in application code.
 - **Color profiles degrade automatically.** The renderer detects terminal capability and coerces colors down the chain (TrueColor → ANSI256 → ANSI → ASCII). This is implemented in `renderer._resolve_color_string()`.
 - **`Inherit()` only copies unset properties.** A property already set on the child must not be overridden by the parent. Margins and padding are never inherited. This is implemented in `Style.inherit()` via the `_NO_INHERIT` frozenset.
 - **Never log to stdout** in a running TUI program — it will corrupt the display. Always use file logging.
