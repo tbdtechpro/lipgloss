@@ -255,18 +255,38 @@ lipgloss.Style().margin(2).margin_background(lipgloss.Color("236"))
 
 ## Width and Height
 
-`width` and `height` set the *minimum* dimensions. Content is padded to fill
-the space; it is never truncated by these properties (use `max_width` /
-`max_height` for truncation).
+`width` and `height` set the *minimum* dimensions. Content shorter than the
+given width is padded. Content **longer** than the given width is **word-wrapped**
+onto additional lines — it is not silently truncated.
 
 ```python
 style = lipgloss.Style().width(24).height(10)
 ```
 
-`max_width` and `max_height` truncate content that exceeds the limit:
+> **TUI warning:** In a Bubble Tea `view()`, every `\n` in the returned string
+> counts as one terminal row. If `.width(n)` causes an unexpected wrap, the
+> renderer will erase one extra line on the next redraw, cascading the entire
+> UI upward. Use `.max_width(n)` for single-line widgets such as status bars
+> and hint rows.
+
+`max_width` and `max_height` **truncate** content that exceeds the limit,
+keeping the output to a single line (or column):
 
 ```python
 style = lipgloss.Style().max_width(20).max_height(5)
+```
+
+### Padding interaction
+
+The word-wrap threshold is `width − pad_left − pad_right`, not `width`.
+With `.width(80).padding(0, 1)` content wraps at column 78:
+
+```python
+# Wraps at 78 chars, not 80 — padding eats into the inner budget:
+Style().width(80).padding(0, 1).render(text)
+
+# To fill 80 cols with 1-col side padding, content must be ≤ 78 chars:
+Style().width(80).padding(0, 1).render(text[:78])
 ```
 
 ---
@@ -478,6 +498,20 @@ lipgloss.width(s)      # visible width of the widest line
 lipgloss.height(s)     # number of lines
 w, h = lipgloss.size(s)
 ```
+
+### Low-level helpers
+
+For cases where you need to measure or clean an ANSI string before passing it
+to another system (e.g. padding two strings to the same width, or forwarding
+content to a non-ANSI renderer):
+
+```python
+lipgloss.visible_width("\x1b[1mHello\x1b[0m")   # → 5  (ignores escape codes)
+lipgloss.strip_ansi("\x1b[32mGreen\x1b[0m")     # → "Green"
+```
+
+These are the same helpers used internally by `Style.render()` and the
+`join_*` / `place_*` utilities.
 
 ---
 

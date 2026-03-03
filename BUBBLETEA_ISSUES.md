@@ -89,3 +89,75 @@ should not be exposed by the distribution.
 `[tool.setuptools.packages.find]` (same as `tests*` and `examples*`).
 Also verify none of the tutorial directories contain an `__init__.py` —
 if they do, remove it.
+
+---
+
+## 4. `.width(n)` word-wraps content — silently breaks bubbletea line counting
+
+**Symptom:** A styled header or hints bar renders as two terminal rows instead
+of one. On the next keypress the entire TUI cascades upward and off-screen.
+
+**Root cause:** `.width(n)` sets a *minimum* column width, but also word-wraps
+content that exceeds `n` characters, injecting a `\n` into the rendered string.
+Most developers expect `.width(n)` to be a padding-only operation (analogous to
+CSS `min-width`).
+
+The injected `\n` inflates `view.count("\n")` in bubbletea's renderer by one.
+The renderer then erases one extra line on the next redraw, shifts the cursor
+above the TUI frame, and every subsequent redraw compounds the offset.
+
+Example — this silently produces a two-line string when `tw = 80`:
+```python
+lipgloss.Style()
+    .background(mocha.crust)
+    .width(80)
+    .render(
+        "  Tab/↑↓ Navigate    ◄/Space/► Cycle option"
+        "    Enter Activate    F5 Generate    Ctrl+Q Quit  "
+    )
+    # ^^^^ 93 visible characters — wraps at column 80, embeds \n
+```
+
+**Fix:** Use `.max_width(n)` instead of `.width(n)` for single-line bars.
+`.max_width(n)` truncates rather than wraps, keeping the output to one row.
+
+**Workaround until migrated:**
+Measure the content before rendering and ensure it is shorter than `tw` before
+calling `.width(tw)`:
+```python
+hints = "  Tab/↑↓ Nav    ◄ Space ► Cycle    Enter Activate    F5 Gen    Ctrl+Q Quit"
+# Keep to 74 chars — well under any realistic terminal width
+lipgloss.Style().width(tw).render(hints)
+```
+
+---
+
+## 5. `.padding()` and `.width()` wrap threshold is undocumented
+
+**Symptom:** A developer sets `.width(80).padding(0, 1)` expecting wrapping (if
+any) to occur at 80 characters. Wrapping actually occurs at 78 characters.
+
+**Root cause:** The word-wrap threshold inside `render()` is
+`width - pad_left - pad_right`. With `.padding(0, 1)` that is `80 − 1 − 1 = 78`.
+The content must fit within the inner box, not the outer styled box.
+
+This is documented in the `.width()` and `.padding()` docstrings as of the fix
+applied in this session; the interaction is now explained with examples in both
+method docstrings.
+
+---
+
+## 6. `visible_width()` and `strip_ansi()` were private but needed by apps
+
+**Symptom:** An app developer needs to measure the visible column width of a
+lipgloss-rendered string before deciding how much padding to add, or to splice
+two styled strings together with correct alignment. The helpers existed but were
+prefixed `_`, making them private and unstable.
+
+**Fix applied:** Both are now exported as public API from `lipgloss/__init__.py`:
+```python
+from lipgloss import visible_width, strip_ansi
+
+visible_width("\x1b[1mHello\x1b[0m")  # → 5
+strip_ansi("\x1b[32mGreen\x1b[0m")    # → "Green"
+```
