@@ -50,7 +50,7 @@ def Roman(items: "Items", i: int) -> str:
     arabic = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
     result: list[str] = []
     for v, value in enumerate(arabic):
-        while i >= value - 1:
+        while i + 1 >= value:
             i -= value
             result.append(roman[v])
     result.append(".")

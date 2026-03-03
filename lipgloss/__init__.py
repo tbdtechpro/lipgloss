@@ -22,6 +22,9 @@ Example usage::
 
 __version__ = "0.1.0"
 
+# Themes
+from . import themes
+
 # Borders
 from .borders import (
     Border,
@@ -75,9 +78,6 @@ from .size import height, size, width
 
 # Style
 from .style import Style, new_style
-
-# Themes
-from . import themes
 
 # Whitespace options
 from .whitespace import (

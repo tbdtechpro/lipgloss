@@ -10,14 +10,13 @@ import re
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Callable, cast
 
+from ._ansi import ANSI_RE as _ANSI_RE
+
 if TYPE_CHECKING:
     from .borders import Border
     from .color import TerminalColor
     from .position import Position
     from .renderer import Renderer
-
-# Regex to strip ANSI escape sequences (used for visible-width measurement).
-_ANSI_RE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
 class Style:
